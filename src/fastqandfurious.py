@@ -3,6 +3,9 @@ CHAR_PLUS = ord(b'+')
 CHAR_NEWLINE = ord(b'\n')
 ARRAY_INIT = array('q', [-1,] * 6)
 
+from collections import namedtuple
+Entry = namedtuple('Entry', 'header sequence')
+
 def _nextentrypos(blob, backlog):
     # look for next "@" starting a line
     headerbeg_i = blob.find(b'\n@', 0)
@@ -111,7 +114,7 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
             else:
                 header = blob[headerbeg_i:headerend_i] # bytes(mblob[headerbeg_i:headerend_i])
                 sequence = blob[seqbeg_i:seqend_i] # bytes(mblob[seqbeg_i:seqend_i])
-                yield (header, sequence)
+                yield Entry(header, sequence)
                 offset = qualend_i+1
         blob = fh.read(fbufsize)
         #mblob = memoryview(blob)
@@ -132,7 +135,7 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
                 raise RuntimeError("The buffer is too small !")
             sequence = backlog[seqbeg_i:seqend_i]
             header = backlog[headerbeg_i:headerend_i]
-            yield (header, sequence)
+            yield Entry(header, sequence)
             backlog = b''
             carryover = False
 

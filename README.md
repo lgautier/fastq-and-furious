@@ -1,6 +1,6 @@
 # fastq-and-furious
 
-Efficient handling of FASTQ files(*) from Python (*: no multi-line FASTQ though...)
+Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though...)
 
 
 There is a little utility to try it out on your own files.
