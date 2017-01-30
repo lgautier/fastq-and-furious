@@ -17,7 +17,6 @@ the benchmark is
 are not counted):
 
 
-```
 | parser | throughput |
 |---|---|
 | screed | 21.96MB/s |
@@ -25,4 +24,3 @@ are not counted):
 | ngs_plumbing | 31.54MB/s |
 | fastqandfurious | 36.73MB/s |
 | fastqandfurious (C parts) | 49.73MB/s |
-```
