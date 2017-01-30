@@ -3,6 +3,8 @@
 (... because it turned out that the performance bottleneck for an algorithm-focused implementation
 of bottom-sketches (MinHash sketches) was the parsing of FASTQ files).
 
+[![Build Status](https://travis-ci.org/lgautier/fastq-and-furious.svg?branch=master)](https://travis-ci.org/lgautier/fastq-and-furious)
+
 Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though...)
 
 ## Installation
