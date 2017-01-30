@@ -5,10 +5,25 @@ of bottom-sketches (MinHash sketches) was the parsing of FASTQ files).
 
 Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though...)
 
+## Installation
+
+Python >= 3.5 (with headers) and a C compiler are the only requirements.
+
+```
+
+pip install https://github.com/lgautier/fastq-and-furious/archive/master.zip
+
+```
+
+
+## Documentation
+
 The documentation is currently a little sparse. The docstring
 for `fastqandfurious.fastqandfurious.readfastq_iter()` is best starting point.
 The code for the benchmark (see below) is also a good source of information as
 it can show how to use when compared to the other parser benchmarked.
+
+## Performance
 
 There is a little utility to try it out on your own files (there are options,
 available with the flag `--help`):
@@ -18,6 +33,9 @@ available with the flag `--help`):
 python -m fastqandfurious.demo.benchmark <FASTQ or FASTQ.gz or FASTQ.bz2 file>
 
 ```
+
+Note that third-party library parsing FASTQ files are required in order to be able to run the full
+benchmark.
 
 With a gzip-compressed FASTQ file of 60MB (size compressed) with 273,639 entries,
 the benchmark is
