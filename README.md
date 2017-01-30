@@ -24,7 +24,7 @@ are not counted):
 | parser | throughput |
 |---|---|
 | screed | 21.96MB/s |
-| biopython | 9.83MB/ss |
+| biopython | 9.83MB/s |
 | ngs_plumbing | 31.54MB/s |
 | fastqandfurious | 36.73MB/s |
 | fastqandfurious (using C parts) | 49.73MB/s |
