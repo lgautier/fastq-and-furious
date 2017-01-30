@@ -83,8 +83,16 @@ def _entrypos(blob, offset, posbuffer):
 
 def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
     """
-    - fh: file-like object (just needs a method `read`)
-    - fbufsize: 
+    The entries in the FASTQ files are parsed from chunks of size `fbufsize`),
+    using the function `_entrypos` (that be changed as a parameter - an
+    faster implementation in C is in `fastqandfurious._fastqandfurious.entrypos`).
+
+    - fh: file-like object or stream (just needs a method `read`)
+    - fbufsize: buffer size
+    - _entrypos: a function to find positions of entries
+
+    Returns an iterator over entries in the FASTQ file.
+
     """
     posbuffer = array('q', [-1, ] * 6)
     fbuf = bytearray(fbufsize)
