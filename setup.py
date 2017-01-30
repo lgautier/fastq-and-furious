@@ -39,7 +39,7 @@ faf_mod = Extension("%s._fastqandfurious" % PACKAGENAME,
                     #include_dirs=["src",],
                     language="c",
                     extra_compile_args = extra_compile_args + \
-                    ['-O3'])
+                    ['-O3', '-std=c99'])
 
 setup(
     name = PYPINAME,

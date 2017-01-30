@@ -9,7 +9,7 @@ Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though
 
 ## Installation
 
-Python >= 3.5 (with headers) and a C compiler are the only requirements.
+Python >= 3.5 (with headers) and a C99-compliant compiler are the only requirements.
 
 ```
 
