@@ -80,7 +80,7 @@ if __name__ == '__main__':
                         action='store_true',
                         help='Do not test "biopython"')        
     parser.add_argument('filename',
-                        help='name of a FASTQ file (optionally gzip or bzip2-compressed)')
+                        help='name of a FASTQ file (optionally gzip, bzip2, or lzma-compressed)')
 
     args = parser.parse_args()
 
@@ -115,6 +115,13 @@ if __name__ == '__main__':
         elif args.filename.endswith('.bz2'):
             import bz2
             with bz2.open(args.filename, mode) as fh:
+                try:
+                    func(fh)
+                except Exception as e:
+                    print('Error: %s' % str(e))        
+        elif args.filename.endswith('.lzma'):
+            import lzma
+            with lzma.open(args.filename, mode) as fh:
                 try:
                     func(fh)
                 except Exception as e:

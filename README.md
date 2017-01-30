@@ -33,7 +33,7 @@ available with the flag `--help`):
 
 ```bash
 
-python -m fastqandfurious.demo.benchmark <FASTQ or FASTQ.gz or FASTQ.bz2 file>
+python -m fastqandfurious.demo.benchmark <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ-lzma file>
 
 ```
 
