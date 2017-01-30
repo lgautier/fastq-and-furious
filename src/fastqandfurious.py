@@ -87,8 +87,18 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
     using the function `_entrypos` (that be changed as a parameter - an
     faster implementation in C is in `fastqandfurious._fastqandfurious.entrypos`).
 
+    With the current implementation, `fbufsize` must be large enough to contain
+    the largest entry in the file. For example, is the longest read is 250bp long,
+    and the identifier is 25-char long, the minimum buffer size will be about
+    525. Aiming for that minimum is not advised, as some of the speed comes
+    for working on buffers, and larger buffers able to contain many entries will
+    lead to better performances (with the cave at that very large buffer might be
+    counter-productive as the iterator will need to read data to fill the buffer
+    (or all data, whichever is the smallest) before starting to yield entries. A
+    value of 20,000 (20KB) lead pretty good results on this end.
+ 
     - fh: file-like object or stream (just needs a method `read`)
-    - fbufsize: buffer size
+    - fbufsize: buffer size (see note above)
     - _entrypos: a function to find positions of entries
 
     Returns an iterator over entries in the FASTQ file.
