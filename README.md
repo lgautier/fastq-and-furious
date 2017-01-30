@@ -1,5 +1,8 @@
 # fastq-and-furious
 
+(... because it turned out that the performance bottleneck for an algorithm-focused implementation
+of bottom-sketches (MinHash sketches) was the parsing of FASTQ files).
+
 Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though...)
 
 The documentation is currently a little sparse. The docstring
