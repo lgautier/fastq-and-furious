@@ -1,7 +1,8 @@
 # fastq-and-furious
 
-(... because it turned out that the performance bottleneck for an algorithm-focused implementation
-of bottom-sketches (MinHash sketches) was the parsing of FASTQ files).
+(... because it turned out that the performance bottleneck for an
+[algorithm-focused implementation of bottom-sketches (MinHash sketches)](https://github.com/lgautier/mashing-pumpkins)
+was the parsing of FASTQ files).
 
 [![Build Status](https://travis-ci.org/lgautier/fastq-and-furious.svg?branch=master)](https://travis-ci.org/lgautier/fastq-and-furious)
 
