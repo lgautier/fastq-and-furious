@@ -2,6 +2,8 @@
 
 Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though...)
 
+The documentation is currently a little sparse. The docstring
+for `fastqandfurious.fastqandfurious.readfastq_iter()` is best starting point.
 
 There is a little utility to try it out on your own files.
 
