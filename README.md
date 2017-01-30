@@ -11,7 +11,7 @@ Python >= 3.5 (with headers) and a C compiler are the only requirements.
 
 ```
 
-pip install https://github.com/lgautier/fastq-and-furious/archive/master.zip
+pip install git+https://github.com/lgautier/fastq-and-furious.git
 
 ```
 
