@@ -7,7 +7,7 @@ PYPINAME = "fastq-and-furious"
 PACKAGENAME = "fastqandfurious"
 VERSION="0.1.0"
 
-extra_compile_args = ['-pedantic']
+extra_compile_args = ['-Wall']
 
 CLASSIFIERS = [
     "Intended Audience :: Science/Research",
