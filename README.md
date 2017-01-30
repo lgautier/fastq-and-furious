@@ -15,7 +15,7 @@ python -m fastqandfurious.demo.benchmark <FASTQ or FASTQ.gz or FASTQ.bz2 file>
 
 With a gzip-compressed FASTQ file of 60MB (size compressed) with 273,639 entries,
 the benchmark is
-(the throughput is the for DNA sequences in the file - headers and quality strings
+(the throughput is for the DNA sequences in the file - headers and quality strings
 are not counted):
 
 
@@ -30,7 +30,7 @@ are not counted):
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
 the benchmark is
-(the throughput is the for DNA sequences in the file - headers and quality strings
+(the throughput is for the DNA sequences in the file - headers and quality strings
 are not counted):
 
 
