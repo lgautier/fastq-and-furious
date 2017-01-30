@@ -13,7 +13,7 @@ python -m fastqandfurious.demo.benchmark <FASTQ or FASTQ.gz or FASTQ.bz2 file>
 
 ```
 
-With a gzip-compressed FASTQ file of 60MB (size compressed) with 273639 entries,
+With a gzip-compressed FASTQ file of 60MB (size compressed) with 273,639 entries,
 the benchmark is
 (the throughput is the for DNA sequences in the file - headers and quality strings
 are not counted):
@@ -26,3 +26,18 @@ are not counted):
 | ngs_plumbing | 31.54MB/s |
 | fastqandfurious | 36.73MB/s |
 | fastqandfurious (C parts) | 49.73MB/s |
+
+
+With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
+the benchmark is
+(the throughput is the for DNA sequences in the file - headers and quality strings
+are not counted):
+
+
+| parser | throughput |
+|---|---|
+| screed | 3.70MB/s |
+| biopython | 3.70MB/ss |
+| ngs_plumbing | 5.68MB/s |
+| fastqandfurious | 8.86MB/s |
+| fastqandfurious (C parts) | 15.12MB/s |
