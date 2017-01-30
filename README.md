@@ -27,7 +27,7 @@ are not counted):
 | biopython | 9.83MB/ss |
 | ngs_plumbing | 31.54MB/s |
 | fastqandfurious | 36.73MB/s |
-| fastqandfurious (C parts) | 49.73MB/s |
+| fastqandfurious (using C parts) | 49.73MB/s |
 
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
@@ -42,4 +42,4 @@ are not counted):
 | biopython | 3.70MB/ss |
 | ngs_plumbing | 5.68MB/s |
 | fastqandfurious | 8.86MB/s |
-| fastqandfurious (C parts) | 15.12MB/s |
+| fastqandfurious (using C parts) | 15.12MB/s |
