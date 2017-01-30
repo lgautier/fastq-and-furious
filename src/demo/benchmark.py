@@ -28,7 +28,6 @@ def benchmark_faf_c(fh, bufsize: int = 10000):
         print()
         print('%i entries' % (i+1))
 
-
 def benchmark_ngsplumbing(fh):
     import ngs_plumbing.fastq
     total = int(0)
@@ -55,6 +54,19 @@ def benchmark_screed(fn):
     print()
     print('%i entries' % (i+1))
 
+def benchmark_biopython(fh):
+    from Bio import SeqIO
+    total = int(0)
+    t0 = time.time()
+    it = SeqIO.parse(fh, "fastq")
+    for i, e in enumerate(it):
+        total += len(e.seq)
+        if i % 5000 == 0:
+            t1 = time.time()
+            print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
+    print()
+    print('%i entries' % (i+1))
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -64,6 +76,9 @@ if __name__ == '__main__':
     parser.add_argument('--no-ngs_plumbing',
                         action='store_true',
                         help='Do not test "ngs_plumbing"')        
+    parser.add_argument('--no-biopython',
+                        action='store_true',
+                        help='Do not test "biopython"')        
     parser.add_argument('filename',
                         help='name of a FASTQ file (optionally gzip or bzip2-compressed)')
 
@@ -80,24 +95,26 @@ if __name__ == '__main__':
             print('Error: %s' % str(e))
 
     lst = list()
+    if not args.no_biopython:
+        lst.append(('biopython', benchmark_biopython, 'rt'))
     if not args.no_ngs_plumbing:
-        lst.append(('ngs_plumbing', benchmark_ngsplumbing))
-    lst.append(('fastqandfurious', benchmark_faf))
-    lst.append(('fastqandfurious (C parts)', benchmark_faf_c))
+        lst.append(('ngs_plumbing', benchmark_ngsplumbing, 'rb'))
+    lst.append(('fastqandfurious', benchmark_faf, 'rb'))
+    lst.append(('fastqandfurious (C parts)', benchmark_faf_c, 'rb'))
     
-    for name, func in lst:
+    for name, func, mode in lst:
         print('---')
         print(name)
         if args.filename.endswith('.gz'):
             import gzip
-            with gzip.open(args.filename) as fh:
+            with gzip.open(args.filename, mode) as fh:
                 try:
                     func(fh)
                 except Exception as e:
                     print('Error: %s' % str(e))
         elif args.filename.endswith('.bz2'):
             import bz2
-            with bz2.open(args.filename) as fh:
+            with bz2.open(args.filename, mode) as fh:
                 try:
                     func(fh)
                 except Exception as e:
