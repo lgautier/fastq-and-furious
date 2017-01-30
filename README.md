@@ -39,7 +39,7 @@ are not counted):
 | parser | throughput |
 |---|---|
 | screed | 3.70MB/s |
-| biopython | 3.70MB/ss |
+| biopython | 3.70MB/s |
 | ngs_plumbing | 5.68MB/s |
 | fastqandfurious | 8.86MB/s |
 | fastqandfurious (using C parts) | 15.12MB/s |
