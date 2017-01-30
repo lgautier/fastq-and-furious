@@ -27,7 +27,7 @@ it can show how to use when compared to the other parser benchmarked.
 
 ## Performance
 
-There is a little utility to try it out on your own files (there are options,
+There is a little utility to try it out on your own systems and files (there are options,
 available with the flag `--help`):
 
 ```bash
