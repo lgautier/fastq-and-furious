@@ -10,7 +10,8 @@ for `fastqandfurious.fastqandfurious.readfastq_iter()` is best starting point.
 The code for the benchmark (see below) is also a good source of information as
 it can show how to use when compared to the other parser benchmarked.
 
-There is a little utility to try it out on your own files.
+There is a little utility to try it out on your own files (there are options,
+available with the flag `--help`):
 
 ```bash
 
