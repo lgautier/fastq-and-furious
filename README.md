@@ -49,11 +49,17 @@ it can show how to use when compared to the other parser benchmarked.
 ## Performance
 
 There is a little utility to try it out on your own systems and files (there are options,
-available with the flag `--help`):
+available with the flag `--help`).
+
+The two mode are "speed" and "compare", the former benchmarking the speed of different
+parsers and the second comparing the output of different parsers (not so good to be
+fast if not correct).
+
+### Speed
 
 ```bash
 
-python -m fastqandfurious.demo.benchmark <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file>
+python -m fastqandfurious.demo.benchmark speed <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file>
 
 ```
 
@@ -88,3 +94,14 @@ are not counted):
 | ngs_plumbing | 5.68MB/s |
 | fastqandfurious (python-only) | 10.58MB/s |
 | fastqandfurious (with C extension) | 19.64MB/s |
+
+
+### Compare
+
+To compare the output two parsers, for example `biopython` and our parser:
+
+```bash
+
+python -m fastqandfurious.demo.benchmark compare biopython fastqandfurious <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file>
+
+```
