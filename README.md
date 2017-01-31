@@ -12,9 +12,25 @@ Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though
 
 Python >= 3.5 (with headers) and a C99-compliant compiler are the only requirements.
 
-```
+```bash
 
 pip install git+https://github.com/lgautier/fastq-and-furious.git
+
+```
+
+To run the tests after installation, one will need a clone of the repository. From the root of the repository, run:
+
+```bash
+
+python -m pytest --cov=fastqandfurious --cov-report xml --cov-report term tests.py
+
+```
+
+If `coverage` is not installed / is not working for you, the tests can be run without coverage analysis with:
+
+```bash
+
+python -m pytest tests.py
 
 ```
 
@@ -22,7 +38,7 @@ pip install git+https://github.com/lgautier/fastq-and-furious.git
 ## Documentation
 
 The documentation is currently a little sparse. The docstring
-for `fastqandfurious.fastqandfurious.readfastq_iter()` is best starting point.
+for `fastqandfurious.fastqandfurious.readfastq_iter()` is a good starting point.
 The code for the benchmark (see below) is also a good source of information as
 it can show how to use when compared to the other parser benchmarked.
 
