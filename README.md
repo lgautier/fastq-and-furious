@@ -18,7 +18,7 @@ pip install git+https://github.com/lgautier/fastq-and-furious.git
 
 ```
 
-Should C extensions be unavaible (no C compiling possible, Pypy, other reasons), the Python-only verion can still be used
+Should C extensions be unavaible (no C compiling possible, Pypy, other reasons), the Python-only version can still be used
 (see section Performance below).
 
 
@@ -53,7 +53,7 @@ available with the flag `--help`):
 
 ```bash
 
-python -m fastqandfurious.demo.benchmark <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ-lzma file>
+python -m fastqandfurious.demo.benchmark <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file>
 
 ```
 
