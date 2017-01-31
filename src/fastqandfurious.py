@@ -55,7 +55,7 @@ def _entrypos(blob, offset, posbuffer):
         return 2
     seqend_i = blob.find(b'\n', seqbeg_i)
     if seqend_i == -1 or (seqend_i + 1) == lblob:
-        return 2
+        return 3
     else:
         posbuffer[3] = seqend_i
         if blob[seqend_i + 1] != ord(b'+'):
@@ -115,14 +115,14 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
     header = b''
     lblob = len(blob)
     while blob != b'':
-        headerbeg_i = 0
-        seqbeg_i = 0
-        seqend_i = 0
+        posbuffer[0] = 0
+        posbuffer[2] = 0
+        posbuffer[3] = 0
         qualend_i = 0
-        while qualend_i < (lblob-1) and seqbeg_i >= 0 and seqend_i >= 0:
+        while qualend_i  < (lblob-1) and posbuffer[3] >= 0 and posbuffer[2] >= 0:
             npos = _entrypos(blob, offset, posbuffer)
-            (headerbeg_i, headerend_i, seqbeg_i, seqend_i, qualbeg_i, qualend_i) = posbuffer
-            if qualend_i == -1 or qualbeg_i == -1 or seqend_i == -1 or seqbeg_i == -1 or headerend_i == -1:
+            qualend_i = posbuffer[5]
+            if npos < 6:
                 #if headerbeg_i == -1:
                 #    import pdb; pdb.set_trace()
                 #    raise RuntimeError("Missing begining of entry ?")
@@ -130,8 +130,9 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
                 backlog = blob[offset:] # bytes(mblob[offset:])
                 break
             else:
-                header = blob[headerbeg_i:headerend_i] # bytes(mblob[headerbeg_i:headerend_i])
-                sequence = blob[seqbeg_i:seqend_i] # bytes(mblob[seqbeg_i:seqend_i])
+                #(headerbeg_i, headerend_i, seqbeg_i, seqend_i, qualbeg_i, qualend_i) = posbuffer
+                header = blob[posbuffer[0]:posbuffer[1]] # bytes(mblob[headerbeg_i:headerend_i])
+                sequence = blob[posbuffer[2]:posbuffer[3]] # bytes(mblob[seqbeg_i:seqend_i])
                 yield Entry(header, sequence)
                 offset = qualend_i+1
         blob = fh.read(fbufsize)
@@ -143,22 +144,21 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
                 if backlog == b'\n':
                     continue
                 else:
-                    headerend_i = -1
+                    nextentry_i = -1
             else:
-                headerbeg_i = _nextentrypos(blob, backlog)
-            if headerbeg_i == -1:
+                nextentry_i = _nextentrypos(blob, backlog)
+            if nextentry_i == -1:
                 raise RuntimeError("Incomplete last entry, or buffer too small.")
             # FIXME:
             tmp = backlog
-            backlog = backlog + blob[:(headerbeg_i+1)]
-            offset = headerbeg_i+1
+            backlog = backlog + blob[:(nextentry_i+1)]
+            offset = nextentry_i+1
             npos = _entrypos(backlog, 0, posbuffer)
-            (headerbeg_i, headerend_i, seqbeg_i, seqend_i, qualbeg_i, qualend_i) = posbuffer
-            if qualend_i == -1:
+            if npos < 6:
                 # FIXME: handle this case
                 raise RuntimeError("The buffer is too small !")
-            sequence = backlog[seqbeg_i:seqend_i]
-            header = backlog[headerbeg_i:headerend_i]
+            header = backlog[posbuffer[0]:posbuffer[1]]
+            sequence = backlog[posbuffer[2]:posbuffer[3]]
             yield Entry(header, sequence)
             backlog = b''
             carryover = False
