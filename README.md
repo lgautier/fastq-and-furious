@@ -102,6 +102,6 @@ To compare the output two parsers, for example `biopython` and our parser:
 
 ```bash
 
-python -m fastqandfurious.demo.benchmark compare biopython fastqandfurious <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file>
+python -m fastqandfurious.demo.benchmark compare biopython fastqandfurious <FASTQ | FASTQ.gz | FASTQ.bz2 | FASTQ.lzma>
 
 ```
