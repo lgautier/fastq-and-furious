@@ -6,7 +6,7 @@ was the parsing of FASTQ files).
 
 [![Build Status](https://travis-ci.org/lgautier/fastq-and-furious.svg?branch=master)](https://travis-ci.org/lgautier/fastq-and-furious)
 
-Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though...)
+Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though, in which case an exception will be raised when parsing).
 
 ## Installation
 
