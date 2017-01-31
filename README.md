@@ -67,8 +67,8 @@ are not counted):
 | screed | 21.96MB/s |
 | biopython | 9.83MB/s |
 | ngs_plumbing | 31.54MB/s |
-| fastqandfurious | 36.73MB/s |
-| fastqandfurious (using C parts) | 49.73MB/s |
+| fastqandfurious | 47.95MB/s |
+| fastqandfurious (using C parts) | 62.81MB/s |
 
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
@@ -82,5 +82,5 @@ are not counted):
 | screed | 3.70MB/s |
 | biopython | 3.70MB/s |
 | ngs_plumbing | 5.68MB/s |
-| fastqandfurious | 8.86MB/s |
-| fastqandfurious (using C parts) | 15.12MB/s |
+| fastqandfurious | 10.58MB/s |
+| fastqandfurious (using C parts) | 19.64MB/s |
