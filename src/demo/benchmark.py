@@ -1,19 +1,19 @@
 import time
 
-def benchmark_faf(fh, bufsize: int = 10000):
+def benchmark_faf(fh, bufsize: int = 50000):
     from fastqandfurious import fastqandfurious
     total = int(0)
     t0 = time.time()
     it = fastqandfurious.readfastq_iter(fh, bufsize)
     for i, (header, sequence) in enumerate(it):
         total += len(sequence)
-        if i % 10 == 0:
+        if i % 5000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries' % (i+1))
 
-def benchmark_faf_c(fh, bufsize: int = 10000):
+def benchmark_faf_c(fh, bufsize: int = 50000):
     from fastqandfurious import fastqandfurious, _fastqandfurious
     total = int(0)
     t0 = time.time()
@@ -21,7 +21,7 @@ def benchmark_faf_c(fh, bufsize: int = 10000):
     try:
         for i, (header, sequence) in enumerate(it):
             total += len(sequence)
-            if i % 10 == 0:
+            if i % 5000 == 0:
                 t1 = time.time()
                 print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
     finally:
