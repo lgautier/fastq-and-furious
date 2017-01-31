@@ -139,7 +139,13 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
         lblob = len(blob)
         offset = 0
         if carryover:
-            headerbeg_i = _nextentrypos(blob, backlog)
+            if lblob == 0:
+                if backlog == b'\n':
+                    continue
+                else:
+                    headerend_i = -1
+            else:
+                headerbeg_i = _nextentrypos(blob, backlog)
             if headerbeg_i == -1:
                 raise RuntimeError("Incomplete last entry, or buffer too small.")
             # FIXME:
