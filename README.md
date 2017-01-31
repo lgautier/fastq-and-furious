@@ -18,6 +18,10 @@ pip install git+https://github.com/lgautier/fastq-and-furious.git
 
 ```
 
+Should C extensions be unavaible (no C compiling possible, Pypy, other reasons), the Python-only verion can still be used
+(see section Performance below).
+
+
 To run the tests after installation, one will need a clone of the repository. From the root of the repository, run:
 
 ```bash
@@ -67,8 +71,8 @@ are not counted):
 | screed | 21.96MB/s |
 | biopython | 9.83MB/s |
 | ngs_plumbing | 31.54MB/s |
-| fastqandfurious | 47.95MB/s |
-| fastqandfurious (using C parts) | 62.81MB/s |
+| fastqandfurious (python-only) | 47.95MB/s |
+| fastqandfurious (using C extension) | 62.81MB/s |
 
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
@@ -82,5 +86,5 @@ are not counted):
 | screed | 3.70MB/s |
 | biopython | 3.70MB/s |
 | ngs_plumbing | 5.68MB/s |
-| fastqandfurious | 10.58MB/s |
-| fastqandfurious (using C parts) | 19.64MB/s |
+| fastqandfurious (python-only) | 10.58MB/s |
+| fastqandfurious (with C extension) | 19.64MB/s |
