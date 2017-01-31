@@ -37,4 +37,8 @@ before_install:
 install:
   - python setup.py install
     
-  
+# command to run tests
+script:
+  - python -m pytest --cov=fastqandfurious --cov-report xml --cov-report term tests.py
+  - codecov
+    
