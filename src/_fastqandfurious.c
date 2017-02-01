@@ -96,19 +96,21 @@ entrypos(PyObject * self, PyObject * args)
   if (blob_char[posarray[3] + 1] != '+') {
     /* multi-line FASTQ :/ */
 
-    /* FIXME: clean this up */
-    printf("\noffset: %i\n", offset);
-    printf("posarray[2]: %i\n", posarray[2]);
-    printf("posarray[3]: %i\n", posarray[3]);
-    printf("header:\n");
-    for(int i=posarray[0]; i<posarray[1]; i++) 
-      printf("%c",blob_char[i]);
-    printf("\n---\n");
-    printf("sequence:\n");
-    for(int i=posarray[2]; i<posarray[3]; i++) 
-      printf("%c",blob_char[i]);
-    printf("\n---\n");
-    /* --- */
+    /* //char errstr[80]; */
+    /* //PyOS_snprintf(errstr, (size_t)80, "", ...) */
+    /* /\* FIXME: clean this up *\/ */
+    /* printf("\noffset: %i\n", offset); */
+    /* printf("posarray[2]: %i\n", posarray[2]); */
+    /* printf("posarray[3]: %i\n", posarray[3]); */
+    /* printf("header:\n"); */
+    /* for(int i=posarray[0]; i<posarray[1]; i++)  */
+    /*   printf("%c",blob_char[i]); */
+    /* printf("\n---\n"); */
+    /* printf("sequence:\n"); */
+    /* for(int i=posarray[2]; i<posarray[3]; i++)  */
+    /*   printf("%c",blob_char[i]); */
+    /* printf("\n---\n"); */
+    /* /\* --- *\/ */
     
     PyErr_SetString(PyExc_ValueError, "Multi-line FASTQ. Bye.");
     PyBuffer_Release(&blob);
@@ -153,6 +155,7 @@ entrypos(PyObject * self, PyObject * args)
   PyBuffer_Release(&posbuffer);
   return PyLong_FromLong(6L);
 }
+
 
 static PyMethodDef fastqandfuriousModuleMethods[] = {
     {
