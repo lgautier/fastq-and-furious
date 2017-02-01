@@ -133,7 +133,7 @@ are not counted):
 | biopython_adapter | 32.85MB/s | fastqandfurious creating biopython objects |
 | ngs_plumbing | 31.54MB/s ||
 | fastqandfurious (python-only) | 47.95MB/s ||
-| fastqandfurious_c | 62.81MB/s | parsing individual entries down to C |
+| fastqandfurious_c | 62.81MB/s | parsing individual entries as C extension |
 
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
