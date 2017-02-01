@@ -44,7 +44,61 @@ python -m pytest tests.py
 The documentation is currently a little sparse. The docstring
 for `fastqandfurious.fastqandfurious.readfastq_iter()` is a good starting point.
 The code for the benchmark (see below) is also a good source of information as
-it can show how to use when compared to the other parser benchmarked.
+it can show how to use when compared to other parsers benchmarked.
+
+
+In a nutshell, the reader takes a file-like object, a buffersize (number of bytes),
+and a function called when yielding entries (to produce "entry" objects):
+
+```python
+
+from fastqandfurious import fastqandfurious, entryfunc
+
+bufsize = 20000
+with open("a/fastq/file.fq") as fh:
+    it = fastqandfurious.readfastq_iter(fh, bufsize, entryfunc)
+    for sequence in it:
+        # do something
+	pass
+```
+
+That design allows to decouple decompression from parsing. Reading data from a gzip-compressed
+file is working the same:
+
+```python
+import gzip
+with gzip.open("a/fastq/file.fq") as fh:
+    it = fastqandfurious.readfastq_iter(fh, bufsize, entryfunc)
+    for sequence in it:
+        # do something
+	pass
+```
+
+That design also lets us just drop the parser into an existing code base, or keep working
+with a library you are most familiar with, writing a short adapter (and observe
+immediate performance gains - see benchmark below).
+
+For biopython, it could look like:
+
+```python
+from fastqandfurious import fastqandfurious
+from Bio.SeqRecord import SeqRecord
+
+def biopython_entryfunc(buf, posarray):
+    name = buf[posarray[0]:posarray[1]].decode('ascii')
+    entry = SeqRecord(seq=buf[posarray[2]:posarray[3]].decode('ascii'),
+                      id=name,
+                      name=name)
+    return entry
+
+bufsize = 20000
+with open("a/fastq/file.fq") as fh:
+    it = fastqandfurious.readfastq_iter(fh, bufsize, biopython_entryfunc)
+    for sequence in it:
+        # do something
+	pass
+
+```
 
 ## Performance
 
@@ -72,13 +126,14 @@ the benchmark is
 are not counted):
 
 
-| parser | throughput |
-|---|---|
-| screed | 21.96MB/s |
-| biopython | 9.83MB/s |
-| ngs_plumbing | 31.54MB/s |
-| fastqandfurious (python-only) | 47.95MB/s |
-| fastqandfurious (using C extension) | 62.81MB/s |
+| parser | throughput | notes |
+|---|---|---|
+| screed | 21.96MB/s ||
+| biopython | 9.83MB/s ||
+| biopython_adapter | 32.85MB/s | fastqandfurious creating biopython objects |
+| ngs_plumbing | 31.54MB/s ||
+| fastqandfurious (python-only) | 47.95MB/s ||
+| fastqandfurious_c | 62.81MB/s | parsing individual entries down to C |
 
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,

@@ -68,6 +68,31 @@ def benchmark_biopython(fh):
     print('%i entries' % (i+1))
 
 
+def benchmark_biopython_adapter(fh):
+    total = int(0)
+    t0 = time.time()
+
+    from fastqandfurious import fastqandfurious
+    from Bio.SeqRecord import SeqRecord
+
+    def biopython_entryfunc(buf, posarray):
+        name = buf[posarray[0]:posarray[1]].decode('ascii')
+        entry = SeqRecord(seq=buf[posarray[2]:posarray[3]].decode('ascii'),
+                          id=name,
+                          name=name)
+        return entry
+
+    bufsize = 20000
+    it = fastqandfurious.readfastq_iter(fh, bufsize, biopython_entryfunc)
+    for i, e in enumerate(it):
+        total += len(e.seq)
+        if i % 20000 == 0:
+            t1 = time.time()
+            print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
+    print()
+    print('%i entries' % (i+1))
+
+    
 def run_speed(args):
 
     print('Running benchmark on file %s' % args.filename)
@@ -83,6 +108,7 @@ def run_speed(args):
     lst = list()
     if not args.no_biopython:
         lst.append(('biopython', benchmark_biopython, 'rt'))
+        lst.append(('biopython_adapter', benchmark_biopython_adapter, 'rb'))
     if not args.no_ngs_plumbing:
         lst.append(('ngs_plumbing', benchmark_ngsplumbing, 'rb'))
     lst.append(('fastqandfurious', benchmark_faf, 'rb'))

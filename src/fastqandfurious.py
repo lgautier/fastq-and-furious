@@ -4,7 +4,7 @@ CHAR_NEWLINE = ord(b'\n')
 ARRAY_INIT = array('q', [-1,] * 6)
 
 from collections import namedtuple
-Entry = namedtuple('Entry', 'header sequence')
+Entry = namedtuple('Entry', 'header sequence quality')
 
 def _nextentrypos(blob, backlog):
     # look for next "@" starting a line
@@ -81,7 +81,13 @@ def _entrypos(blob, offset, posbuffer):
     else:
         return 6
 
-def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
+def entryfunc(buf, pos):
+    header = buf[pos[0]:pos[1]]
+    sequence = buf[pos[2]:pos[3]]
+    quality = buf[pos[4]:pos[5]]
+    return Entry(header, sequence, quality)
+    
+def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entrypos):
     """
     The entries in the FASTQ files are parsed from chunks of size `fbufsize`),
     using the function `_entrypos` (that be changed as a parameter - an
@@ -96,9 +102,15 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
     counter-productive as the iterator will need to read data to fill the buffer
     (or all data, whichever is the smallest) before starting to yield entries. A
     value of 20,000 (20KB) lead pretty good results on this end.
+
+    `entryfunc` can be any function taking a bytes-like objects and an 
+    array of position (array of signed integers of length 6: header (begin, end),
+    sequence (begin, end), and quality (begin, end). This allows plugging this
+    parser into existing code bases / frameworks very easily.
  
     - fh: file-like object or stream (just needs a method `read`)
     - fbufsize: buffer size (see note above)
+    - entryfunc: a function taking a bytes-like object and an array of positions
     - _entrypos: a function to find positions of entries
 
     Returns an iterator over entries in the FASTQ file.
@@ -131,9 +143,7 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
                 break
             else:
                 #(headerbeg_i, headerend_i, seqbeg_i, seqend_i, qualbeg_i, qualend_i) = posbuffer
-                header = blob[posbuffer[0]:posbuffer[1]] # bytes(mblob[headerbeg_i:headerend_i])
-                sequence = blob[posbuffer[2]:posbuffer[3]] # bytes(mblob[seqbeg_i:seqend_i])
-                yield Entry(header, sequence)
+                yield entryfunc(blob, posbuffer)
                 offset = qualend_i+1
         blob = fh.read(fbufsize)
         #mblob = memoryview(blob)
@@ -157,9 +167,7 @@ def readfastq_iter(fh, fbufsize: int, _entrypos = _entrypos):
             if npos < 6:
                 # FIXME: handle this case
                 raise RuntimeError("The buffer is too small !")
-            header = backlog[posbuffer[0]:posbuffer[1]]
-            sequence = backlog[posbuffer[2]:posbuffer[3]]
-            yield Entry(header, sequence)
+            yield entryfunc(backlog, posbuffer)
             backlog = b''
             carryover = False
 
