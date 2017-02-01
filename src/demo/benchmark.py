@@ -5,9 +5,9 @@ def benchmark_faf(fh, bufsize: int = 50000):
     total = int(0)
     t0 = time.time()
     it = fastqandfurious.readfastq_iter(fh, bufsize)
-    for i, (header, sequence) in enumerate(it):
-        total += len(sequence)
-        if i % 5000 == 0:
+    for i, e in enumerate(it):
+        total += len(e.sequence)
+        if i % 20000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -19,9 +19,9 @@ def benchmark_faf_c(fh, bufsize: int = 50000):
     t0 = time.time()
     it = fastqandfurious.readfastq_iter(fh, bufsize, _entrypos=_fastqandfurious.entrypos)
     try:
-        for i, (header, sequence) in enumerate(it):
-            total += len(sequence)
-            if i % 5000 == 0:
+        for i, e in enumerate(it):
+            total += len(e.sequence)
+            if i % 20000 == 0:
                 t1 = time.time()
                 print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
     finally:
@@ -35,7 +35,7 @@ def benchmark_ngsplumbing(fh):
     it = ngs_plumbing.fastq.read_fastq(fh)
     for i, e in enumerate(it):
         total += len(e.sequence)
-        if i % 5000 == 0:
+        if i % 20000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -48,7 +48,7 @@ def benchmark_screed(fn):
     it = screed.open(fn)
     for i, e in enumerate(it):
         total += len(e.sequence)
-        if i % 5000 == 0:
+        if i % 20000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -61,7 +61,7 @@ def benchmark_biopython(fh):
     it = SeqIO.parse(fh, "fastq")
     for i, e in enumerate(it):
         total += len(e.seq)
-        if i % 5000 == 0:
+        if i % 20000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
     print()
