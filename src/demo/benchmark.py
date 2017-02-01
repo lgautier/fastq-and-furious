@@ -108,7 +108,8 @@ def run_speed(args):
     lst = list()
     if not args.no_biopython:
         lst.append(('biopython', benchmark_biopython, 'rt'))
-        lst.append(('biopython_adapter', benchmark_biopython_adapter, 'rb'))
+        if args.with_biopython_adapter:
+            lst.append(('biopython_adapter', benchmark_biopython_adapter, 'rb'))
     if not args.no_ngs_plumbing:
         lst.append(('ngs_plumbing', benchmark_ngsplumbing, 'rb'))
     lst.append(('fastqandfurious', benchmark_faf, 'rb'))
@@ -226,7 +227,10 @@ if __name__ == '__main__':
                               help='Do not test "ngs_plumbing"')        
     parser_speed.add_argument('--no-biopython',
                               action='store_true',
-                            help='Do not test "biopython"')        
+                            help='Do not test "biopython"')
+    parser_speed.add_argument('--with-biopython-adapter',
+                              action='store_true',
+                              help='Test with adapter for "biopython" (unless --no-biopython specified)')
     parser_speed.add_argument('filename',
                               help='name of a FASTQ file (optionally gzip, bzip2, or lzma-compressed)')
 
