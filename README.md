@@ -179,7 +179,7 @@ are not counted):
 
 ### Compare
 
-To compare the output two parsers, for example `biopython` and our parser:
+To compare the output of two parsers, for example `biopython` and our parser:
 
 ```bash
 
