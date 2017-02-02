@@ -173,8 +173,8 @@ are not counted):
 | screed | 3.70MB/s |
 | biopython | 3.70MB/s |
 | ngs_plumbing | 5.68MB/s |
-| fastqandfurious (python-only) | 10.58MB/s |
-| fastqandfurious (with C extension) | 19.64MB/s |
+| fastqandfurious | 10.58MB/s |
+| fastqandfurious_c | 19.64MB/s |
 
 
 ### Compare
