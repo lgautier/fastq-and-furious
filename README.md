@@ -46,6 +46,7 @@ for `fastqandfurious.fastqandfurious.readfastq_iter()` is a good starting point.
 The code for the benchmark (see below) is also a good source of information as
 it can show how to use when compared to other parsers benchmarked.
 
+### Short short doc
 
 In a nutshell, the reader takes a file-like object, a buffersize (number of bytes),
 and a function called when yielding entries (to produce "entry" objects):
@@ -69,10 +70,12 @@ file is working the same:
 import gzip
 with gzip.open("a/fastq/file.fq") as fh:
     it = fastqandfurious.readfastq_iter(fh, bufsize, entryfunc)
-    for sequence in it:
+    for entry in it:
         # do something
 	pass
 ```
+
+### Instant faster code (just add <strike>water</strike> adapter code)
 
 That design also lets us just drop the parser into an existing code base, or keep working
 with a library you are most familiar with, writing a short adapter (and observe
@@ -94,11 +97,34 @@ def biopython_entryfunc(buf, posarray):
 bufsize = 20000
 with open("a/fastq/file.fq") as fh:
     it = fastqandfurious.readfastq_iter(fh, bufsize, biopython_entryfunc)
-    for sequence in it:
+    for entry in it:
         # do something
 	pass
 
 ```
+
+The design is obviously also offering various performance gains by allowing to only build entry components
+as needed. For example, writing a filter on read length could be done with:
+
+```python
+def lengthfilter_entryfunc(buf, posarray):
+    LENGTH_THRESHOLD = 25
+    if posarray[3] - posarray[2] < LENGTH_THRESHOLD:
+        return buf[posarray[2]:posarray[3]]
+    else:
+        return None
+
+with open("a/fastq/file.fq") as fh:
+    it = fastqandfurious.readfastq_iter(fh, bufsize, lengthfilter_entryfunc)
+    for sequence in it:
+        if sequence is None:
+	    # do nothing
+	else:
+            # do something
+	    pass
+
+```
+
 
 ## Performance
 
@@ -133,7 +159,7 @@ are not counted):
 | biopython_adapter | 32.85MB/s | fastqandfurious creating biopython objects |
 | ngs_plumbing | 31.54MB/s ||
 | fastqandfurious (python-only) | 47.95MB/s ||
-| fastqandfurious_c | 62.81MB/s | parsing individual entries as C extension |
+| fastqandfurious_c | 62.81MB/s | parsing individual entries with C extension |
 
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
