@@ -41,6 +41,66 @@ python -m pytest tests.py
 
 ```
 
+## Performance
+
+There is a little utility to try it out on your own systems and files (there are options,
+available with the flag `--help`).
+
+The two mode are "speed" and "compare", the former benchmarking the speed of different
+parsers and the second comparing the output of different parsers (not so good to be
+fast if not correct).
+
+### Speed
+
+```bash
+
+python -m fastqandfurious.demo.benchmark speed <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file>
+
+```
+
+Note that third-party library parsing FASTQ files are required in order to be able to run the full
+benchmark.
+
+With a gzip-compressed FASTQ file of 60MB (size compressed) with 273,639 entries,
+the benchmark is
+(the throughput is for the DNA sequences in the file - headers and quality strings
+are not counted):
+
+
+| parser | throughput | notes |
+|---|---|---|
+| screed | 21.96MB/s ||
+| biopython | 9.83MB/s ||
+| biopython_adapter | 32.85MB/s | fastqandfurious creating biopython objects |
+| ngs_plumbing | 31.54MB/s ||
+| fastqandfurious | 47.95MB/s | pure python |
+| fastqandfurious_c | 62.81MB/s | parsing individual entries with C extension |
+
+
+With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
+the benchmark is
+(the throughput is for the DNA sequences in the file - headers and quality strings
+are not counted):
+
+
+| parser | throughput |
+|---|---|
+| screed | 3.70MB/s |
+| biopython | 3.70MB/s |
+| ngs_plumbing | 5.68MB/s |
+| fastqandfurious | 10.58MB/s |
+| fastqandfurious_c | 19.64MB/s |
+
+
+### Compare
+
+To compare the output of two parsers, for example `biopython` and our parser:
+
+```bash
+
+python -m fastqandfurious.demo.benchmark compare biopython fastqandfurious <FASTQ | FASTQ.gz | FASTQ.bz2 | FASTQ.lzma>
+
+```
 
 ## Documentation
 
@@ -129,63 +189,3 @@ with open("a/fastq/file.fq") as fh:
 ```
 
 
-## Performance
-
-There is a little utility to try it out on your own systems and files (there are options,
-available with the flag `--help`).
-
-The two mode are "speed" and "compare", the former benchmarking the speed of different
-parsers and the second comparing the output of different parsers (not so good to be
-fast if not correct).
-
-### Speed
-
-```bash
-
-python -m fastqandfurious.demo.benchmark speed <FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file>
-
-```
-
-Note that third-party library parsing FASTQ files are required in order to be able to run the full
-benchmark.
-
-With a gzip-compressed FASTQ file of 60MB (size compressed) with 273,639 entries,
-the benchmark is
-(the throughput is for the DNA sequences in the file - headers and quality strings
-are not counted):
-
-
-| parser | throughput | notes |
-|---|---|---|
-| screed | 21.96MB/s ||
-| biopython | 9.83MB/s ||
-| biopython_adapter | 32.85MB/s | fastqandfurious creating biopython objects |
-| ngs_plumbing | 31.54MB/s ||
-| fastqandfurious | 47.95MB/s | pure python |
-| fastqandfurious_c | 62.81MB/s | parsing individual entries with C extension |
-
-
-With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
-the benchmark is
-(the throughput is for the DNA sequences in the file - headers and quality strings
-are not counted):
-
-
-| parser | throughput |
-|---|---|
-| screed | 3.70MB/s |
-| biopython | 3.70MB/s |
-| ngs_plumbing | 5.68MB/s |
-| fastqandfurious | 10.58MB/s |
-| fastqandfurious_c | 19.64MB/s |
-
-
-### Compare
-
-To compare the output of two parsers, for example `biopython` and our parser:
-
-```bash
-
-python -m fastqandfurious.demo.benchmark compare biopython fastqandfurious <FASTQ | FASTQ.gz | FASTQ.bz2 | FASTQ.lzma>
-
-```
