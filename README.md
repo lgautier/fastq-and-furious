@@ -8,6 +8,9 @@ was the parsing of FASTQ files).
 
 Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though, in which case an exception will be raised when parsing).
 
+[![speed_benchmark](throughput.png)](throughput.png)
+
+
 ## Installation
 
 Python >= 3.5 (with headers) and a C99-compliant compiler are the only requirements.
@@ -158,7 +161,7 @@ are not counted):
 | biopython | 9.83MB/s ||
 | biopython_adapter | 32.85MB/s | fastqandfurious creating biopython objects |
 | ngs_plumbing | 31.54MB/s ||
-| fastqandfurious (python-only) | 47.95MB/s ||
+| fastqandfurious | 47.95MB/s | pure python |
 | fastqandfurious_c | 62.81MB/s | parsing individual entries with C extension |
 
 
