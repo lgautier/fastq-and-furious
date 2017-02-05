@@ -123,7 +123,8 @@ entrypos(PyObject * self, PyObject * args)
     return PyLong_FromLong(4L);
   }
   if (blob_char[posarray[3] + 2] != '\n') {
-    PyErr_SetString(PyExc_ValueError, "The character after the delimiter for quality should be a new line.");
+    PyErr_SetString(PyExc_ValueError,
+		    "The character after the delimiter for quality should be a new line (the variant where the ID is repeated is not handled).");
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
     return NULL;

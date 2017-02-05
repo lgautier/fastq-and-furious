@@ -1,6 +1,8 @@
 import time
 import io
 
+REFRESH_RATE=int(1E5)
+
 def benchmark_faf(fh, bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious
     total_seq = int(0)
@@ -8,7 +10,7 @@ def benchmark_faf(fh, bufsize: int = int(2**16)):
     it = fastqandfurious.readfastq_iter(fh, bufsize)
     for i, e in enumerate(it):
         total_seq += len(e.sequence)
-        if i % 50000 == 0:
+        if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -22,7 +24,7 @@ def benchmark_faf_c(fh, bufsize: int = int(2**16)):
     try:
         for i, e in enumerate(it):
             total_seq += len(e.sequence)
-            if i % 50000 == 0:
+            if i % REFRESH_RATE == 0:
                 t1 = time.time()
                 print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     finally:
@@ -36,7 +38,7 @@ def benchmark_ngsplumbing(fh):
     it = ngs_plumbing.fastq.read_fastq(fh)
     for i, e in enumerate(it):
         total_seq += len(e.sequence)
-        if i % 50000 == 0:
+        if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -49,7 +51,7 @@ def benchmark_screed(fn):
     it = screed.open(fn)
     for i, e in enumerate(it):
         total_seq += len(e.sequence)
-        if i % 50000 == 0:
+        if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -62,7 +64,7 @@ def benchmark_biopython(fh):
     it = SeqIO.parse(fh, "fastq")
     for i, e in enumerate(it):
         total_seq += len(e.seq)
-        if i % 50000 == 0:
+        if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -87,7 +89,7 @@ def benchmark_biopython_adapter(fh):
     it = fastqandfurious.readfastq_iter(fh, bufsize, biopython_entryfunc)
     for i, e in enumerate(it):
         total_seq += len(e.seq)
-        if i % 50000 == 0:
+        if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -125,7 +127,8 @@ def run_speed(args):
             lst.append(('biopython_adapter', benchmark_biopython_adapter, 'rb'))
     if not args.no_ngs_plumbing:
         lst.append(('ngs_plumbing', benchmark_ngsplumbing, 'rb'))
-    lst.append(('fastqandfurious', benchmark_faf, 'rb'))
+    if not args.no_fastqandfurious_python:
+        lst.append(('fastqandfurious', benchmark_faf, 'rb'))
     lst.append(('fastqandfurious (w/ C-ext)', benchmark_faf_c, 'rb'))
     
     for name, func, mode in lst:
@@ -222,7 +225,10 @@ if __name__ == '__main__':
                               help='Do not test "ngs_plumbing"')        
     parser_speed.add_argument('--no-biopython',
                               action='store_true',
-                            help='Do not test "biopython"')
+                              help='Do not test "biopython"')
+    parser_speed.add_argument('--no-fastqandfurious_python',
+                              action='store_true',
+                              help='Do not test "fastqandfurious" (Python-only)')
     parser_speed.add_argument('--with-biopython-adapter',
                               action='store_true',
                               help='Test with adapter for "biopython" (unless --no-biopython specified)')
