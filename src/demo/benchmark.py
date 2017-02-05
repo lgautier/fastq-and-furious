@@ -1,6 +1,7 @@
 import time
+import io
 
-def benchmark_faf(fh, bufsize: int = 50000):
+def benchmark_faf(fh, bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious
     total_seq = int(0)
     t0 = time.time()
@@ -13,7 +14,7 @@ def benchmark_faf(fh, bufsize: int = 50000):
     print()
     print('%i entries' % (i+1))
 
-def benchmark_faf_c(fh, bufsize: int = 50000):
+def benchmark_faf_c(fh, bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious, _fastqandfurious
     total_seq = int(0)
     t0 = time.time()
@@ -95,13 +96,13 @@ def benchmark_biopython_adapter(fh):
 def _opener(filename, mode):
     if filename.endswith('.gz'):
         import gzip
-        return gzip.open(args.filename, mode)
+        return gzip.open(filename, mode)
     elif filename.endswith('.bz2'):
         import bz2
-        return bz2.open(args.filename, mode)
+        return bz2.open(filename, mode)
     elif filename.endswith('.lzma'):
         import lzma
-        return lzma.open(args.filename, mode)
+        return lzma.open(filename, mode)
     else:
         return open(filename, mode)
     
@@ -214,9 +215,11 @@ if __name__ == '__main__':
     parser_speed.add_argument('--with-biopython-adapter',
                               action='store_true',
                               help='Test with adapter for "biopython" (unless --no-biopython specified)')
+    parser_speed.add_argument('--io-buffersize',
+                              type = int,
+                              default = 2**13)
     parser_speed.add_argument('filename',
                               help='name of a FASTQ file (optionally gzip, bzip2, or lzma-compressed)')
-
     parser_speed.set_defaults(func=run_speed)
 
 
