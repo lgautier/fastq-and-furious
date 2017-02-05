@@ -112,7 +112,7 @@ def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entryp
     lead to better performances (with the cave at that very large buffer might be
     counter-productive as the iterator will need to read data to fill the buffer
     (or all data, whichever is the smallest) before starting to yield entries. A
-    value of 20,000 (20KB) lead pretty good results on this end.
+    value between 20,000 and 50,000 (20KB-50KB) gives pretty good results on this end.
 
     `entryfunc` can be any function taking a bytes-like objects and an 
     array of position (array of signed integers of length 6: header (begin, end),
