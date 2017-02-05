@@ -63,9 +63,20 @@ def _entrypos(blob, offset, posbuffer):
             raise ValueError("Multi-line FASTQ. Bye.")
         if (seqend_i + 2) >= lblob:
             return 4
-        assert blob[seqend_i + 2] == ord(b'\n')
+        if blob[seqend_i + 2] == ord(b'\n'):
+            # if most-common situation where separator for quality sequence only a "+"
+            qualbeg_i = seqend_i+3
+        else:
+            # name in header can optionally be repeated
+            lheader = posbuffer[1] - posbuffer[0] + 1
+            if (blob[seqend_i + lheader] == ord(b'\n')) and \
+               (blob[(posbuffer[0]+1):posbuffer[1]] == blob[(seqend_i + 2):(seqend_i+lheader)]):
+                qualbeg_i = seqend_i + lheader + 1
+            else:
+                raise ValueError("Invalid quality header (sequence header is '%s' and quality header is '%s'." % \
+                                 (blob[(posbuffer[0]):posbuffer[1]],
+                                  blob[(seqend_i+1):(seqend_i+lheader)],))
     # quality
-    qualbeg_i = seqend_i+3
     if qualbeg_i >= lblob or seqend_i == -1:
         return 4
     else:
@@ -91,7 +102,7 @@ def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entryp
     """
     The entries in the FASTQ files are parsed from chunks of size `fbufsize`),
     using the function `_entrypos` (that be changed as a parameter - an
-    faster implementation in C is in `fastqandfurious._fastqandfurious.entrypos`).
+    faster implementation in C iblob[(posbuffer[0]+1):posbuffer[1]]s in `fastqandfurious._fastqandfurious.entrypos`).
 
     With the current implementation, `fbufsize` must be large enough to contain
     the largest entry in the file. For example, is the longest read is 250bp long,
