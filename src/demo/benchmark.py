@@ -8,7 +8,7 @@ def benchmark_faf(fh, bufsize: int = int(2**16)):
     it = fastqandfurious.readfastq_iter(fh, bufsize)
     for i, e in enumerate(it):
         total_seq += len(e.sequence)
-        if i % 20000 == 0:
+        if i % 50000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -22,7 +22,7 @@ def benchmark_faf_c(fh, bufsize: int = int(2**16)):
     try:
         for i, e in enumerate(it):
             total_seq += len(e.sequence)
-            if i % 20000 == 0:
+            if i % 50000 == 0:
                 t1 = time.time()
                 print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     finally:
@@ -36,7 +36,7 @@ def benchmark_ngsplumbing(fh):
     it = ngs_plumbing.fastq.read_fastq(fh)
     for i, e in enumerate(it):
         total_seq += len(e.sequence)
-        if i % 20000 == 0:
+        if i % 50000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -49,7 +49,7 @@ def benchmark_screed(fn):
     it = screed.open(fn)
     for i, e in enumerate(it):
         total_seq += len(e.sequence)
-        if i % 20000 == 0:
+        if i % 50000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -62,7 +62,7 @@ def benchmark_biopython(fh):
     it = SeqIO.parse(fh, "fastq")
     for i, e in enumerate(it):
         total_seq += len(e.seq)
-        if i % 20000 == 0:
+        if i % 50000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
@@ -87,24 +87,24 @@ def benchmark_biopython_adapter(fh):
     it = fastqandfurious.readfastq_iter(fh, bufsize, biopython_entryfunc)
     for i, e in enumerate(it):
         total_seq += len(e.seq)
-        if i % 20000 == 0:
+        if i % 50000 == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries' % (i+1))
 
-def _opener(filename, mode):
+def _opener(filename):
     if filename.endswith('.gz'):
         import gzip
-        return gzip.open(filename, mode)
+        return gzip.open
     elif filename.endswith('.bz2'):
         import bz2
-        return bz2.open(filename, mode)
+        return bz2.open
     elif filename.endswith('.lzma'):
         import lzma
-        return lzma.open(filename, mode)
+        return lzma.open
     else:
-        return open(filename, mode)
+        return open
     
 def run_speed(args):
 
@@ -131,11 +131,13 @@ def run_speed(args):
     for name, func, mode in lst:
         print('---')
         print(name)
-        with _opener(args.filename, mode) as fh:
-            try:
-                func(fh)
-            except Exception as e:
-                print('Error: %s' % str(e))
+        openfunc = _opener(args.filename)
+        with open(args.filename, mode, buffering = args.io_buffersize) as f:
+            with openfunc(f) as fh: 
+                try:
+                    func(fh)
+                except Exception as e:
+                    print('Error: %s' % str(e))
 
 def _screed_iter(fn):
     import screed
@@ -143,48 +145,57 @@ def _screed_iter(fn):
     for i, e in enumerate(it):
         yield (i, b'@'+e.name.encode('ascii'), str(e.sequence).encode('ascii'))
 
-def _biopython_iter(fn, mode):
+def _biopython_iter(fn, mode, buffering):
     from Bio import SeqIO
-    with _opener(fn, mode) as fh:
-        for i, e in enumerate(SeqIO.parse(fh, "fastq")):
-            yield (i, b'@'+e.description.encode('ascii'), str(e.seq).encode('ascii'))
+    openfunc = _opener(fn)
+    with open(fn, mode, buffering = buffering) as f:
+        with openfunc(f) as fh: 
+            for i, e in enumerate(SeqIO.parse(fh, "fastq")):
+                yield (i, b'@'+e.description.encode('ascii'), str(e.seq).encode('ascii'))
 
-def _ngs_plumbing_iter(fn, mode):
+def _ngs_plumbing_iter(fn, mode, buffering):
     import ngs_plumbing.fastq
-    with _opener(fn, mode) as fh:
-        it = ngs_plumbing.fastq.read_fastq(fh)
-        for i, e in enumerate(it):
-            yield (i, e.header, e.sequence)
+    openfunc = _opener(fn)
+    with open(fn, mode, buffering = buffering) as f:
+        with openfunc(f) as fh: 
+            it = ngs_plumbing.fastq.read_fastq(fh)
+            for i, e in enumerate(it):
+                yield (i, e.header, e.sequence)
 
-def _fastqandfurious_iter(fn, mode):
+def _fastqandfurious_iter(fn, mode, buffering):
     from fastqandfurious import fastqandfurious
     bufsize = int(5E4)
-    with _opener(fn, mode) as fh:
-        it = fastqandfurious.readfastq_iter(fh, bufsize)
-        for i, e in enumerate(it):
-            yield (i, e.header, e.sequence)
+    openfunc = _opener(fn)
+    with open(fn, mode, buffering = buffering) as f:
+        with openfunc(f) as fh: 
+            it = fastqandfurious.readfastq_iter(fh, bufsize)
+            for i, e in enumerate(it):
+                yield (i, e.header, e.sequence)
 
-def _fastqandfurious_c_iter(fn, mode):
+def _fastqandfurious_c_iter(fn, mode, buffering):
     from fastqandfurious import fastqandfurious, _fastqandfurious
     bufsize = int(5E4)
-    with _opener(fn, mode) as fh:
-        it = fastqandfurious.readfastq_iter(fh, bufsize, _entrypos=_fastqandfurious.entrypos)
-        for i, e in enumerate(it):
-            yield (i, e.header, e.sequence)
+    openfunc = _opener(fn)
+    with open(fn, mode, buffering = buffering) as f:
+        with openfunc(f) as fh: 
+            it = fastqandfurious.readfastq_iter(fh, bufsize, _entrypos=_fastqandfurious.entrypos)
+            for i, e in enumerate(it):
+                yield (i, e.header, e.sequence)
 
 def run_compare(args):
     res = list()
+
     for name in args.parser:
         if name == 'screed':
             res.append(_screed_iter(args.filename))
         elif name == 'biopython':
-            res.append(_biopython_iter(args.filename, 'rt'))
+            res.append(_biopython_iter(args.filename, 'rt', 2**16))
         elif name == 'ngs_plumbing':
-            res.append(_ngs_plumbing_iter(args.filename, 'rb'))
+            res.append(_ngs_plumbing_iter(args.filename, 'rb', 2**16))
         elif name == 'fastqandfurious':
-            res.append(_fastqandfurious_iter(args.filename, 'rb'))
+            res.append(_fastqandfurious_iter(args.filename, 'rb', 2**16))
         elif name == 'fastqandfurious_c':
-            res.append(_fastqandfurious_c_iter(args.filename, 'rb'))
+            res.append(_fastqandfurious_c_iter(args.filename, 'rb', 2**16))
         else:
             raise ValueError('Unknown parser name.')
     for i, (e1, e2) in enumerate(zip(*res), 0):
