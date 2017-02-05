@@ -2,74 +2,74 @@ import time
 
 def benchmark_faf(fh, bufsize: int = 50000):
     from fastqandfurious import fastqandfurious
-    total = int(0)
+    total_seq = int(0)
     t0 = time.time()
     it = fastqandfurious.readfastq_iter(fh, bufsize)
     for i, e in enumerate(it):
-        total += len(e.sequence)
+        total_seq += len(e.sequence)
         if i % 20000 == 0:
             t1 = time.time()
-            print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
+            print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries' % (i+1))
 
 def benchmark_faf_c(fh, bufsize: int = 50000):
     from fastqandfurious import fastqandfurious, _fastqandfurious
-    total = int(0)
+    total_seq = int(0)
     t0 = time.time()
     it = fastqandfurious.readfastq_iter(fh, bufsize, _entrypos=_fastqandfurious.entrypos)
     try:
         for i, e in enumerate(it):
-            total += len(e.sequence)
+            total_seq += len(e.sequence)
             if i % 20000 == 0:
                 t1 = time.time()
-                print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
+                print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     finally:
         print()
         print('%i entries' % (i+1))
 
 def benchmark_ngsplumbing(fh):
     import ngs_plumbing.fastq
-    total = int(0)
+    total_seq = int(0)
     t0 = time.time()
     it = ngs_plumbing.fastq.read_fastq(fh)
     for i, e in enumerate(it):
-        total += len(e.sequence)
+        total_seq += len(e.sequence)
         if i % 20000 == 0:
             t1 = time.time()
-            print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
+            print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries' % (i+1))
 
 def benchmark_screed(fn):
     import screed
-    total = int(0)
+    total_seq = int(0)
     t0 = time.time()
     it = screed.open(fn)
     for i, e in enumerate(it):
-        total += len(e.sequence)
+        total_seq += len(e.sequence)
         if i % 20000 == 0:
             t1 = time.time()
-            print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
+            print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries' % (i+1))
 
 def benchmark_biopython(fh):
     from Bio import SeqIO
-    total = int(0)
+    total_seq = int(0)
     t0 = time.time()
     it = SeqIO.parse(fh, "fastq")
     for i, e in enumerate(it):
-        total += len(e.seq)
+        total_seq += len(e.seq)
         if i % 20000 == 0:
             t1 = time.time()
-            print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
+            print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries' % (i+1))
 
 
 def benchmark_biopython_adapter(fh):
-    total = int(0)
+    total_seq = int(0)
     t0 = time.time()
 
     from fastqandfurious import fastqandfurious
@@ -85,13 +85,25 @@ def benchmark_biopython_adapter(fh):
     bufsize = 20000
     it = fastqandfurious.readfastq_iter(fh, bufsize, biopython_entryfunc)
     for i, e in enumerate(it):
-        total += len(e.seq)
+        total_seq += len(e.seq)
         if i % 20000 == 0:
             t1 = time.time()
-            print('\r%.2fMB/s' % (total/(1E6)/(t1-t0)), end='', flush=True)
+            print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries' % (i+1))
 
+def _opener(filename, mode):
+    if filename.endswith('.gz'):
+        import gzip
+        return gzip.open(args.filename, mode)
+    elif filename.endswith('.bz2'):
+        import bz2
+        return bz2.open(args.filename, mode)
+    elif filename.endswith('.lzma'):
+        import lzma
+        return lzma.open(args.filename, mode)
+    else:
+        return open(filename, mode)
     
 def run_speed(args):
 
@@ -118,40 +130,11 @@ def run_speed(args):
     for name, func, mode in lst:
         print('---')
         print(name)
-        if args.filename.endswith('.gz'):
-            import gzip
-            with gzip.open(args.filename, mode) as fh:
-                try:
-                    func(fh)
-                except Exception as e:
-                    print('Error: %s' % str(e))
-        elif args.filename.endswith('.bz2'):
-            import bz2
-            with bz2.open(args.filename, mode) as fh:
-                try:
-                    func(fh)
-                except Exception as e:
-                    print('Error: %s' % str(e))        
-        elif args.filename.endswith('.lzma'):
-            import lzma
-            with lzma.open(args.filename, mode) as fh:
-                try:
-                    func(fh)
-                except Exception as e:
-                    print('Error: %s' % str(e))        
-
-
-
-def _opener(filename, mode):
-    if filename.endswith('.gz'):
-        import gzip
-        return gzip.open(args.filename, mode)
-    elif filename.endswith('.bz2'):
-        import bz2
-        return bz2.open(args.filename, mode)
-    elif filename.endswith('.lzma'):
-        import lzma
-        return lzma.open(args.filename, mode)
+        with _opener(args.filename, mode) as fh:
+            try:
+                func(fh)
+            except Exception as e:
+                print('Error: %s' % str(e))
 
 def _screed_iter(fn):
     import screed
