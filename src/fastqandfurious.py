@@ -63,13 +63,13 @@ def _entrypos(blob, offset, posbuffer):
             raise ValueError("Multi-line FASTQ. Bye.")
         if (seqend_i + 2) >= lblob:
             return 4
-        if blob[seqend_i + 2] == ord(b'\n'):
+        if blob[seqend_i + 2] == CHAR_NEWLINE:
             # if most-common situation where separator for quality sequence only a "+"
             qualbeg_i = seqend_i+3
         else:
             # name in header can optionally be repeated
             lheader = posbuffer[1] - posbuffer[0] + 1
-            if (blob[seqend_i + lheader] == ord(b'\n')) and \
+            if (blob[seqend_i + lheader] == CHAR_NEWLINE) and \
                (blob[(posbuffer[0]+1):posbuffer[1]] == blob[(seqend_i + 2):(seqend_i+lheader)]):
                 qualbeg_i = seqend_i + lheader + 1
             else:
@@ -85,7 +85,7 @@ def _entrypos(blob, offset, posbuffer):
         if qualend_i >= lblob:
             qualend_i = -1
         else:
-            assert blob[qualend_i] == ord(b'\n')
+            assert blob[qualend_i] == CHAR_NEWLINE
         posbuffer[5] = qualend_i
     if qualend_i == -1:
         return 5
