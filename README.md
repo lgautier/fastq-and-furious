@@ -69,12 +69,12 @@ are not counted):
 
 | parser | throughput | notes |
 |---|---|---|
-| screed | 21.96MB/s ||
-| biopython | 9.83MB/s ||
-| biopython_adapter | 32.85MB/s | fastqandfurious creating biopython objects |
-| ngs_plumbing | 31.54MB/s ||
-| fastqandfurious | 47.95MB/s | pure python |
-| fastqandfurious_c | 62.81MB/s | parsing individual entries with C extension |
+| screed | 23.27MB/s ||
+| biopython | 10.18MB/s ||
+| biopython_adapter | 33.26MB/s | fastqandfurious creating biopython objects |
+| ngs_plumbing | 32.98MB/s ||
+| fastqandfurious | 51.27MB/s | pure python |
+| fastqandfurious_c | 67.38MB/s | parsing individual entries with C extension |
 
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
@@ -85,11 +85,12 @@ are not counted):
 
 | parser | throughput |
 |---|---|
-| screed | 3.70MB/s |
-| biopython | 3.70MB/s |
-| ngs_plumbing | 5.68MB/s |
-| fastqandfurious | 10.58MB/s |
-| fastqandfurious_c | 19.64MB/s |
+| screed | 3.63MB/s |
+| biopython | 3.57MB/s |
+| biopython_adapter | 6.19MB/s | fastqandfurious creating biopython objects |
+| ngs_plumbing | 5.77MB/s |
+| fastqandfurious | 11.51MB/s |
+| fastqandfurious_c | 21.88MB/s |
 
 
 ### Compare
