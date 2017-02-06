@@ -87,7 +87,7 @@ are not counted):
 |---|---|
 | screed | 3.63MB/s |
 | biopython | 3.57MB/s |
-| biopython_adapter | 6.19MB/s | fastqandfurious creating biopython objects |
+| biopython_adapter | 6.19MB/s |
 | ngs_plumbing | 5.77MB/s |
 | fastqandfurious | 11.51MB/s |
 | fastqandfurious_c | 21.88MB/s |
