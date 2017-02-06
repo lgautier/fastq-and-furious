@@ -9,12 +9,12 @@ def benchmark_faf(fh, bufsize: int = int(2**16)):
     t0 = time.time()
     it = fastqandfurious.readfastq_iter(fh, bufsize)
     for i, e in enumerate(it):
-        total_seq += len(e.sequence)
+        total_seq += len(e[1])
         if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
-    print('%i entries' % (i+1))
+    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
 def benchmark_faf_c(fh, bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious, _fastqandfurious
@@ -23,13 +23,13 @@ def benchmark_faf_c(fh, bufsize: int = int(2**16)):
     it = fastqandfurious.readfastq_iter(fh, bufsize, _entrypos=_fastqandfurious.entrypos)
     try:
         for i, e in enumerate(it):
-            total_seq += len(e.sequence)
+            total_seq += len(e[1])
             if i % REFRESH_RATE == 0:
                 t1 = time.time()
                 print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     finally:
         print()
-        print('%i entries' % (i+1))
+        print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
 def benchmark_ngsplumbing(fh):
     import ngs_plumbing.fastq
@@ -42,7 +42,7 @@ def benchmark_ngsplumbing(fh):
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
-    print('%i entries' % (i+1))
+    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
 def benchmark_screed(fn):
     import screed
@@ -68,8 +68,7 @@ def benchmark_biopython(fh):
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
-    print('%i entries' % (i+1))
-
+    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
 def benchmark_biopython_adapter(fh):
     total_seq = int(0)
@@ -93,7 +92,7 @@ def benchmark_biopython_adapter(fh):
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
-    print('%i entries' % (i+1))
+    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
 def _opener(filename):
     if filename.endswith('.gz'):

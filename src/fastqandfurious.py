@@ -92,11 +92,17 @@ def _entrypos(blob, offset, posbuffer):
     else:
         return 6
 
-def entryfunc(buf, pos):
+def entryfunc_namedtuple(buf, pos):
     header = buf[pos[0]:pos[1]]
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
     return Entry(header, sequence, quality)
+
+def entryfunc(buf, pos):
+    header = buf[pos[0]:pos[1]]
+    sequence = buf[pos[2]:pos[3]]
+    quality = buf[pos[4]:pos[5]]
+    return (header, sequence, quality)
     
 def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entrypos):
     """
