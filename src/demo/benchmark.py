@@ -134,26 +134,32 @@ def run_speed(args):
         print('---')
         print(name)
         openfunc = _opener(args.filename)
-        with open(args.filename, mode, buffering = args.io_buffersize) as f:
-            with openfunc(f) as fh: 
+        if name == 'biopython':
+            with openfunc(args.filename, mode=mode) as fh:
                 try:
                     func(fh)
                 except Exception as e:
                     print('Error: %s' % str(e))
+        else:
+            with open(args.filename, mode, buffering = args.io_buffersize) as f:
+                with openfunc(f) as fh:
+                    try:
+                        func(fh)
+                    except Exception as e:
+                        print('Error: %s' % str(e))
 
 def _screed_iter(fn):
     import screed
     it = screed.open(fn)
     for i, e in enumerate(it):
-        yield (i, b'@'+e.name.encode('ascii'), str(e.sequence).encode('ascii'))
+        yield (i, e.name.encode('ascii'), str(e.sequence).encode('ascii'))
 
 def _biopython_iter(fn, mode, buffering):
     from Bio import SeqIO
     openfunc = _opener(fn)
-    with open(fn, mode, buffering = buffering) as f:
-        with openfunc(f) as fh: 
-            for i, e in enumerate(SeqIO.parse(fh, "fastq")):
-                yield (i, b'@'+e.description.encode('ascii'), str(e.seq).encode('ascii'))
+    with openfunc(fn, mode=mode) as fh: 
+        for i, e in enumerate(SeqIO.parse(fh, "fastq")):
+            yield (i, e.description.encode('ascii'), str(e.seq).encode('ascii'))
 
 def _ngs_plumbing_iter(fn, mode, buffering):
     import ngs_plumbing.fastq
@@ -162,7 +168,7 @@ def _ngs_plumbing_iter(fn, mode, buffering):
         with openfunc(f) as fh: 
             it = ngs_plumbing.fastq.read_fastq(fh)
             for i, e in enumerate(it):
-                yield (i, e.header, e.sequence)
+                yield (i, e.header[1:], e.sequence)
 
 def _fastqandfurious_iter(fn, mode, buffering):
     from fastqandfurious import fastqandfurious

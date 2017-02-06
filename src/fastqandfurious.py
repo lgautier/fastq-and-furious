@@ -93,13 +93,13 @@ def _entrypos(blob, offset, posbuffer):
         return 6
 
 def entryfunc_namedtuple(buf, pos):
-    header = buf[pos[0]:pos[1]]
+    header = buf[(pos[0]+1):pos[1]]
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
     return Entry(header, sequence, quality)
 
 def entryfunc(buf, pos):
-    header = buf[pos[0]:pos[1]]
+    header = buf[(pos[0]+1):pos[1]]
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
     return (header, sequence, quality)
