@@ -106,7 +106,7 @@ def _entrypos(blob, offset, posbuffer):
         return 6
 
 def entryfunc_namedtuple(buf, pos: array) -> Entry:
-        """ 
+    """ 
     Build a FASTQ entry as a namedtuple with attributes header, sequence, and quality.
 
     - buf: bytes-like object
