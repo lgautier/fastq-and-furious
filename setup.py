@@ -56,7 +56,7 @@ setup(
     ext_modules = [faf_mod, ],
     extras_require = {
         'test' : ['pytest', ],
-        'demo' : ['ngs_plumbing', 'screed']},
+        'demo' : ['ngs_plumbing', 'screed', 'biopython']},
     classifiers = CLASSIFIERS)
 
 
