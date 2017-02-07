@@ -1,3 +1,4 @@
+from typing import Callable
 from array import array
 CHAR_PLUS = ord(b'+')
 CHAR_NEWLINE = ord(b'\n')
@@ -6,7 +7,19 @@ ARRAY_INIT = array('q', [-1,] * 6)
 from collections import namedtuple
 Entry = namedtuple('Entry', 'header sequence quality')
 
-def _nextentrypos(blob, backlog):
+def nextentrypos(blob, backlog) -> int:
+    """
+    Return the position (index) for the begining of next FASTQ entry in a "blob" of text,
+    or -1 if it cannot find any.
+
+    :param blob: a "blob" of text as a bytes-like object
+    :param backlog: bytes-like object with an unfinished entry from a "blob"
+                    in the input right before this one. It can be an empty
+                    sequence (e.g., b'')
+    
+    """
+
+    
     # look for next "@" starting a line
     headerbeg_i = blob.find(b'\n@', 0)
 
@@ -92,13 +105,25 @@ def _entrypos(blob, offset, posbuffer):
     else:
         return 6
 
-def entryfunc_namedtuple(buf, pos):
+def entryfunc_namedtuple(buf, pos: array) -> Entry:
+        """ 
+    Build a FASTQ entry as a namedtuple with attributes header, sequence, and quality.
+
+    - buf: bytes-like object
+    - pos: array of indices/positions in `buf`
+    """
     header = buf[(pos[0]+1):pos[1]]
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
     return Entry(header, sequence, quality)
 
-def entryfunc(buf, pos):
+def entryfunc(buf, pos: array) -> tuple:
+    """ 
+    Build a FASTQ entry as a tuple (header, sequence, quality)
+
+    - buf: bytes-like object
+    - pos: array of indices/positions in `buf`
+    """
     header = buf[(pos[0]+1):pos[1]]
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
@@ -127,8 +152,8 @@ def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entryp
  
     - fh: file-like object or stream (just needs a method `read`)
     - fbufsize: buffer size (see note above)
-    - entryfunc: a function taking a bytes-like object and an array of positions
-    - _entrypos: a function to find positions of entries
+    - entryfunc: a function to build an entry object (taking a bytes-like object and an array of positions)
+    - _entrypos: a function to find positions of entries 
 
     Returns an iterator over entries in the FASTQ file.
 
@@ -173,7 +198,7 @@ def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entryp
                 else:
                     nextentry_i = -1
             else:
-                nextentry_i = _nextentrypos(blob, backlog)
+                nextentry_i = nextentrypos(blob, backlog)
             if nextentry_i == -1:
                 raise RuntimeError("Incomplete last entry, or buffer too small.")
             # FIXME:
