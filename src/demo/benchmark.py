@@ -134,7 +134,7 @@ def run_speed(args):
 
     lst = list()
     if not args.no_biopython:
-        #lst.append(('biopython', benchmark_biopython, 'rt'))
+        lst.append(('biopython', benchmark_biopython, 'rt'))
         lst.append(('biopython_fastqiterator', benchmark_biopython_faster, 'rt'))
         if args.with_biopython_adapter:
             lst.append(('biopython_adapter', benchmark_biopython_adapter, 'rb'))
