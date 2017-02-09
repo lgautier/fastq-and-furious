@@ -70,6 +70,19 @@ def benchmark_biopython(fh):
     print()
     print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
+def benchmark_biopython_faster(fh):
+    from Bio.SeqIO.QualityIO import FastqGeneralIterator
+    total_seq = int(0)
+    t0 = time.time()
+    it = FastqGeneralIterator(fh)
+    for i, (title, seq, qual) in enumerate(it):
+        total_seq += len(seq)
+        if i % REFRESH_RATE == 0:
+            t1 = time.time()
+            print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
+    print()
+    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+
 def benchmark_biopython_adapter(fh):
     total_seq = int(0)
     t0 = time.time()
@@ -121,7 +134,8 @@ def run_speed(args):
 
     lst = list()
     if not args.no_biopython:
-        lst.append(('biopython', benchmark_biopython, 'rt'))
+        #lst.append(('biopython', benchmark_biopython, 'rt'))
+        lst.append(('biopython_fastqiterator', benchmark_biopython_faster, 'rt'))
         if args.with_biopython_adapter:
             lst.append(('biopython_adapter', benchmark_biopython_adapter, 'rb'))
     if not args.no_ngs_plumbing:
@@ -134,7 +148,7 @@ def run_speed(args):
         print('---')
         print(name)
         openfunc = _opener(args.filename)
-        if name == 'biopython':
+        if name in ('biopython', 'biopython_fastqiterator'):
             with openfunc(args.filename, mode=mode) as fh:
                 try:
                     func(fh)

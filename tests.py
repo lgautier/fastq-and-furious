@@ -19,12 +19,20 @@ def test_readfastq_iter():
         with pytest.raises(RuntimeError):
             bufsize = 100
             _test_readfastq_iter(filename, bufsize, fastqandfurious._entrypos)
+    bufsize = 600
+    with pytest.raises(ValueError):
+        _test_readfastq_iter("data/test_tricky.fq", bufsize, fastqandfurious._entrypos)
         
 def test_readfastq_c_iter():
-    filename = "data/test.fq"
-    bufsize = 600
-    _test_readfastq_iter(filename, bufsize, _fastqandfurious.entrypos)
-    # buffer too low
-    with pytest.raises(RuntimeError):
-        bufsize = 100
+    for filename in ("data/test.fq", ):
+        bufsize = 600
         _test_readfastq_iter(filename, bufsize, _fastqandfurious.entrypos)
+        # buffer too low
+        with pytest.raises(RuntimeError):
+            bufsize = 100
+            _test_readfastq_iter(filename, bufsize, _fastqandfurious.entrypos)
+    bufsize = 600
+    with pytest.raises(ValueError):
+        _test_readfastq_iter("data/test_tricky.fq", bufsize, fastqandfurious._entrypos)
+
+

@@ -71,6 +71,7 @@ are not counted):
 |---|---|---|
 | screed | 23.27MB/s ||
 | biopython | 10.18MB/s ||
+| biopython_fastqiterator | 50.19MB/s | `Bio.SeqIO.QualityIO.FastqGeneralIterator` |
 | biopython_adapter | 33.26MB/s | fastqandfurious creating biopython objects |
 | ngs_plumbing | 32.98MB/s ||
 | fastqandfurious | 51.27MB/s | pure python |
@@ -85,12 +86,13 @@ are not counted):
 
 | parser | throughput |
 |---|---|
-| screed | 3.63MB/s |
-| biopython | 3.57MB/s |
-| biopython_adapter | 6.19MB/s |
-| ngs_plumbing | 5.77MB/s |
-| fastqandfurious | 11.51MB/s |
-| fastqandfurious_c | 21.88MB/s |
+| screed | 3.63MB/s ||
+| biopython | 3.57MB/s ||
+| biopython_fastqiterator | 14.09MB/s ||
+| biopython_adapter | 6.19MB/s ||
+| ngs_plumbing | 5.77MB/s ||
+| fastqandfurious | 11.51MB/s ||
+| fastqandfurious_c | 21.88MB/s ||
 
 
 ### Compare

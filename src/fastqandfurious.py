@@ -73,7 +73,8 @@ def _entrypos(blob, offset, posbuffer):
         posbuffer[3] = seqend_i
         if blob[seqend_i + 1] != ord(b'+'):
             # multi-line FASTQ :/
-            raise ValueError("Multi-line FASTQ. Bye.")
+            raise ValueError("Multi-line FASTQ. Bye. (expected '+' but got '%s')." % \
+                             blob[max(0, seqend_i-3):min(len(blob), seqend_i+4)])
         if (seqend_i + 2) >= lblob:
             return 4
         if blob[seqend_i + 2] == CHAR_NEWLINE:
