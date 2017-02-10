@@ -72,7 +72,7 @@ are not counted):
 | screed | 23.27MB/s ||
 | biopython | 10.18MB/s ||
 | biopython_fastqiterator | 50.19MB/s | `Bio.SeqIO.QualityIO.FastqGeneralIterator` |
-| biopython_adapter | 33.26MB/s | fastqandfurious creating biopython objects |
+| biopython_adapter | 14.41MB/s | fastqandfurious creating biopython objects |
 | ngs_plumbing | 32.98MB/s ||
 | fastqandfurious | 51.27MB/s | pure python |
 | fastqandfurious_c | 67.38MB/s | parsing individual entries with C extension |

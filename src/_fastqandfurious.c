@@ -157,11 +157,47 @@ entrypos(PyObject * self, PyObject * args)
   return PyLong_FromLong(6L);
 }
 
+PyDoc_STRVAR(byteoffset_doc,
+             "byteoffset(buf, offset)"
+             "Offset the integer corresponding to each byte in the buffer **in-place**." 
+	     "- buf: a bytes-like object\n"
+	     "- offset: an integer\n");
+
+static PyObject *
+byteoffset(PyObject * self, PyObject * args)
+{
+  Py_buffer buf;
+  signed char offset;
+
+  if (!PyArg_ParseTuple(args, "y*h", &buf, &offset)) {
+    return NULL;
+  }
+
+  if (buf.itemsize != sizeof(signed char)) {
+    PyBuffer_Release(&buf);
+    PyErr_SetString(PyExc_ValueError, "The buffer must be of format type b.");
+    return NULL;
+  }
+  
+  signed char * bufarray = (signed char *) buf.buf;
+  const Py_ssize_t buflen = buf.len / buf.itemsize;
+  /* initialize the buffer */
+  for (Py_ssize_t i = 0; i < buflen; i++) {
+    bufarray[i] += offset;
+  }
+
+  Py_RETURN_NONE;
+}
+
 
 static PyMethodDef fastqandfuriousModuleMethods[] = {
     {
       "entrypos", (PyCFunction)entrypos,
         METH_VARARGS, entrypos_doc,
+    },
+    {
+      "byteoffset", (PyCFunction)byteoffset,
+        METH_VARARGS, byteoffset_doc,
     },
     { NULL} // sentinel
 };

@@ -88,13 +88,19 @@ def benchmark_biopython_adapter(fh):
     t0 = time.time()
 
     from fastqandfurious import fastqandfurious
+    from fastqandfurious._fastqandfurious import byteoffset
     from Bio.SeqRecord import SeqRecord
+    from array import array
 
     def biopython_entryfunc(buf, posarray):
         name = buf[posarray[0]:posarray[1]].decode('ascii')
+        quality = array('b')
+        quality.frombytes(buf[posarray[4]:posarray[5]])
+        byteoffset(quality, -33)
         entry = SeqRecord(seq=buf[posarray[2]:posarray[3]].decode('ascii'),
                           id=name,
-                          name=name)
+                          name=name,
+                          letter_annotations={'phred_quality': quality})
         return entry
 
     bufsize = 20000
