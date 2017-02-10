@@ -5,6 +5,7 @@
 was the parsing of FASTQ files).
 
 [![Build Status](https://travis-ci.org/lgautier/fastq-and-furious.svg?branch=master)](https://travis-ci.org/lgautier/fastq-and-furious)
+[![Pypi release](https://img.shields.io/pypi/v/fastq-and-furious.svg)](https://img.shields.io/pypi/v/fastq-and-furious.svg)
 
 Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though, in which case an exception will be raised when parsing).
 
@@ -174,6 +175,8 @@ with open("a/fastq/file.fq") as fh:
 
 ```
 
+### Performance by design
+
 The design is obviously also offering various performance gains by allowing to only build entry components
 as needed. For example, writing a filter on read length could be done with:
 
@@ -204,4 +207,26 @@ from array import array
 quality = array('b')
 quality.frombytes(buf[posarray[4]:posarray[5]])
 byteoffset(quality, -33)
+```
+
+The design is obviously also offering various performance gains by allowing to only build entry components
+as needed. For example, writing a filter on read length could be done with:
+
+```python
+def lengthfilter_entryfunc(buf, posarray):
+    LENGTH_THRESHOLD = 25
+    if posarray[3] - posarray[2] < LENGTH_THRESHOLD:
+        return buf[posarray[2]:posarray[3]]
+    else:
+        return None
+
+with open("a/fastq/file.fq") as fh:
+    it = fastqandfurious.readfastq_iter(fh, bufsize, lengthfilter_entryfunc)
+    for sequence in it:
+        if sequence is None:
+	    # do nothing
+	else:
+            # do something
+	    pass
+
 ```
