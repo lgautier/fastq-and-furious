@@ -18,9 +18,18 @@ Python >= 3.5 (with headers) and a C99-compliant compiler are the only requireme
 
 ```bash
 
+pip install fastq-and-furious
+
+```
+
+or
+
+```bash
+
 pip install git+https://github.com/lgautier/fastq-and-furious.git
 
 ```
+
 
 Should C extensions be unavaible (no C compiling possible, Pypy, other reasons), the Python-only version can still be used
 (see section Performance below).
