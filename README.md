@@ -150,14 +150,19 @@ immediate performance gains - see benchmark below).
 For biopython, it could look like:
 
 ```python
-from fastqandfurious import fastqandfurious
+from fastqandfurious._fastqandfurious import byteoffset
 from Bio.SeqRecord import SeqRecord
+from array import array
 
 def biopython_entryfunc(buf, posarray):
     name = buf[posarray[0]:posarray[1]].decode('ascii')
+    quality = array('b')
+    quality.frombytes(buf[posarray[4]:posarray[5]])
+    byteoffset(quality, -33)
     entry = SeqRecord(seq=buf[posarray[2]:posarray[3]].decode('ascii'),
                       id=name,
-                      name=name)
+                      name=name,
+                      letter_annotations={'phred_quality': quality})
     return entry
 
 bufsize = 20000
@@ -191,4 +196,12 @@ with open("a/fastq/file.fq") as fh:
 
 ```
 
+If having the quality as a sequence of integer ajusted for the eventual offset of 33, there is a also a C utility:
 
+```python
+from fastqandfurious._fastqandfurious import byteoffset
+from array import array
+quality = array('b')
+quality.frombytes(buf[posarray[4]:posarray[5]])
+byteoffset(quality, -33)
+```
