@@ -31,6 +31,38 @@ def benchmark_faf_c(fh, bufsize: int = int(2**16)):
         print()
         print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
+def benchmark_faf_c_index(fh, fh_index, bufsize: int = int(2**16)):
+    from fastqandfurious import fastqandfurious, _fastqandfurious
+    from array import array
+    total_seq = int(0)
+    t0 = time.time()
+    fh = io.BufferedReader(fh, buffer_size = bufsize*8)
+    try:
+        offset = 0
+        entry_i = 0
+        buf = None
+        while True:
+            posarray = array('q')
+            try:
+                posarray.fromfile(fh_index, 6)
+            except EOFError as eofe:
+                break
+            buf = fh.read(posarray[-1]-offset+1)
+            tmp = posarray[-1]
+            _fastqandfurious.arrayadd_q(posarray, -offset)
+            e = (buf[posarray[0]:posarray[1]],
+                 buf[posarray[2]:posarray[3]],
+                 buf[posarray[4]:posarray[5]])
+            offset = tmp+1
+            entry_i += 1
+            total_seq += len(e[1])
+            if entry_i % REFRESH_RATE == 0:
+                t1 = time.time()
+                print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
+    finally:
+        print()
+        print('%i entries in %.3f seconds.' % (entry_i+1, time.time()-t0))
+
 def benchmark_ngsplumbing(fh):
     import ngs_plumbing.fastq
     total_seq = int(0)
@@ -88,15 +120,15 @@ def benchmark_biopython_adapter(fh):
     t0 = time.time()
 
     from fastqandfurious import fastqandfurious
-    from fastqandfurious._fastqandfurious import byteoffset
+    from fastqandfurious._fastqandfurious import arrayadd_b
     from Bio.SeqRecord import SeqRecord
     from array import array
 
-    def biopython_entryfunc(buf, posarray):
+    def biopython_entryfunc(buf, posarray, globaloffset):
         name = buf[posarray[0]:posarray[1]].decode('ascii')
         quality = array('b')
         quality.frombytes(buf[posarray[4]:posarray[5]])
-        byteoffset(quality, -33)
+        arrayadd_b(quality, -33)
         entry = SeqRecord(seq=buf[posarray[2]:posarray[3]].decode('ascii'),
                           id=name,
                           name=name,
@@ -149,6 +181,7 @@ def run_speed(args):
     if not args.no_fastqandfurious_python:
         lst.append(('fastqandfurious', benchmark_faf, 'rb'))
     lst.append(('fastqandfurious (w/ C-ext)', benchmark_faf_c, 'rb'))
+    lst.append(('fastqandfurious (w/ C-ext and indexing)', benchmark_faf_c_index, 'rb'))
     
     for name, func, mode in lst:
         print('---')
@@ -160,6 +193,27 @@ def run_speed(args):
                     func(fh)
                 except Exception as e:
                     print('Error: %s' % str(e))
+        elif name == 'fastqandfurious (w/ C-ext and indexing)':
+            import tempfile
+            from fastqandfurious import fastqandfurious, _fastqandfurious
+            bufsize = int(5E4)
+            with tempfile.NamedTemporaryFile(mode='r+b') as fh_index:
+                with openfunc(args.filename, mode=mode) as fh:
+                    print('  building index...', end='', flush=True)
+                    it = fastqandfurious.readfastq_iter(fh, bufsize,
+                                                        entryfunc=fastqandfurious.entryfunc_abspos,
+                                                        _entrypos=_fastqandfurious.entrypos)
+                    for i, pos in enumerate(it):
+                        pos.tofile(fh_index)
+                    fh_index.flush()
+                    fh_index.seek(0)
+                    print('done.')
+                with openfunc(args.filename, mode=mode) as fh:
+                    #try:
+                    func(fh, fh_index)
+                    #except Exception as e:
+                    #    print('Error: %s' % str(e))
+
         else:
             with open(args.filename, mode, buffering = args.io_buffersize) as f:
                 with openfunc(f) as fh:

@@ -86,6 +86,7 @@ are not counted):
 | ngs_plumbing | 32.98MB/s ||
 | fastqandfurious | 51.27MB/s | pure python |
 | fastqandfurious_c | 67.38MB/s | parsing individual entries with C extension |
+| fastqandfurious_c_index | 56.81MB/s | w/ index of entry positions |
 
 
 With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
@@ -103,6 +104,7 @@ are not counted):
 | ngs_plumbing | 5.77MB/s ||
 | fastqandfurious | 11.51MB/s ||
 | fastqandfurious_c | 21.88MB/s ||
+| fastqandfurious_c_index | 14.86MB/s ||
 
 
 ### Compare
@@ -160,7 +162,7 @@ immediate performance gains - see benchmark below).
 For biopython, it could look like:
 
 ```python
-from fastqandfurious._fastqandfurious import byteoffset
+from fastqandfurious._fastqandfurious import arrayadd_b
 from Bio.SeqRecord import SeqRecord
 from array import array
 
@@ -168,7 +170,7 @@ def biopython_entryfunc(buf, posarray):
     name = buf[posarray[0]:posarray[1]].decode('ascii')
     quality = array('b')
     quality.frombytes(buf[posarray[4]:posarray[5]])
-    byteoffset(quality, -33)
+    arrayadd_b(quality, -33)
     entry = SeqRecord(seq=buf[posarray[2]:posarray[3]].decode('ascii'),
                       id=name,
                       name=name,
@@ -208,14 +210,33 @@ with open("a/fastq/file.fq") as fh:
 
 ```
 
+Fetching the positions for the elements of an entry (name/ID, sequence, quality) is also allowing one
+to store the positions associated with a FASTQ for future use (see the code for `fastqandfurious_c_index`
+in `fastqandfurious.demo.benchmark`).
+
+This is essentially like storing a table of positions:
+
+| name_beg | name_end | seq_beg | seq_end | quality_beg | quality_end |
+|----------|----------|---------|---------|-------------|-------------|
+| 0  | 20 | 22 | 172 | 24 | 274 |
+| 275 | 295 | 296 | 446 | 448 | 598 |
+
+Whenever the FASTQ must be used again, that table can be used to quickly extract
+data elements without having to parse them.
+
+Unfortunately, when doing so the benchmark does not show improvements over
+`fastqandfurious_c` but the approach opens the door for implementing masking strategies to avoid
+saving FASTQ after each filtering or read-trimming step. Excluding reads or trimming either end of the read
+could be done by only deleting rows or modifying the values in the table.
+
 If having the quality as a sequence of integer ajusted for the eventual offset of 33, there is a also a C utility:
 
 ```python
-from fastqandfurious._fastqandfurious import byteoffset
+from fastqandfurious._fastqandfurious import arrayadd_b
 from array import array
 quality = array('b')
 quality.frombytes(buf[posarray[4]:posarray[5]])
-byteoffset(quality, -33)
+arrayadd_b(quality, -33)
 ```
 
 The design is obviously also offering various performance gains by allowing to only build entry components

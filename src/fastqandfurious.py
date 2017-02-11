@@ -106,7 +106,7 @@ def _entrypos(blob, offset, posbuffer):
     else:
         return 6
 
-def entryfunc_namedtuple(buf, pos: array) -> Entry:
+def entryfunc_namedtuple(buf, pos: array, globaloffset: int) -> Entry:
     """ 
     Build a FASTQ entry as a namedtuple with attributes header, sequence, and quality.
 
@@ -118,7 +118,7 @@ def entryfunc_namedtuple(buf, pos: array) -> Entry:
     quality = buf[pos[4]:pos[5]]
     return Entry(header, sequence, quality)
 
-def entryfunc(buf, pos: array) -> tuple:
+def entryfunc(buf, pos: array, globaloffset: int) -> tuple:
     """ 
     Build a FASTQ entry as a tuple (header, sequence, quality)
 
@@ -129,8 +129,21 @@ def entryfunc(buf, pos: array) -> tuple:
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
     return (header, sequence, quality)
-    
-def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entrypos):
+ 
+def entryfunc_abspos(buf, pos: array, globaloffset: int):
+    """ 
+    Return the absolute positions of the entry in the stream
+
+    - buf: bytes-like object
+    - pos: array of indices/positions in `buf`
+    """
+    for i in (0,1,2,3,4,5):
+        pos[i] += globaloffset
+    return pos
+
+
+def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entrypos,
+                   globaloffset: int = 0):
     """
     The entries in the FASTQ files are parsed from chunks of size `fbufsize`),
     using the function `_entrypos` (that be changed as a parameter - an
@@ -186,8 +199,9 @@ def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entryp
                 break
             else:
                 #(headerbeg_i, headerend_i, seqbeg_i, seqend_i, qualbeg_i, qualend_i) = posbuffer
-                yield entryfunc(blob, posbuffer)
+                yield entryfunc(blob, posbuffer, globaloffset)
                 offset = qualend_i+1
+        globaloffset += lblob
         blob = fh.read(fbufsize)
         #mblob = memoryview(blob)
         lblob = len(blob)
@@ -203,14 +217,14 @@ def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entryp
             if nextentry_i == -1:
                 raise RuntimeError("Incomplete last entry, or buffer too small.")
             # FIXME:
-            tmp = backlog
+            adjustedglobaloffset = globaloffset-len(backlog)
             backlog = backlog + blob[:(nextentry_i+1)]
             offset = nextentry_i+1
             npos = _entrypos(backlog, 0, posbuffer)
             if npos < 6:
                 # FIXME: handle this case
                 raise RuntimeError("The buffer is too small !")
-            yield entryfunc(backlog, posbuffer)
+            yield entryfunc(backlog, posbuffer, adjustedglobaloffset)
             backlog = b''
             carryover = False
 

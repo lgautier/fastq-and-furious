@@ -157,19 +157,19 @@ entrypos(PyObject * self, PyObject * args)
   return PyLong_FromLong(6L);
 }
 
-PyDoc_STRVAR(byteoffset_doc,
-             "byteoffset(buf, offset)"
-             "Offset the integer corresponding to each byte in the buffer **in-place**." 
-	     "- buf: a bytes-like object\n"
-	     "- offset: an integer\n");
+PyDoc_STRVAR(arrayadd_b_doc,
+             "arrayadd_b(a, offset)"
+             "Add the integer value to each value in the array **in-place**." 
+ 	     "- a: an array (or any object with the buffer interface) with elements of type 'b'\n"
+	     "- value: a signed integer\n");
 
 static PyObject *
-byteoffset(PyObject * self, PyObject * args)
+arrayadd_b(PyObject * self, PyObject * args)
 {
   Py_buffer buf;
-  signed char offset;
+  signed char value;
 
-  if (!PyArg_ParseTuple(args, "y*h", &buf, &offset)) {
+  if (!PyArg_ParseTuple(args, "y*h", &buf, &value)) {
     return NULL;
   }
 
@@ -183,7 +183,39 @@ byteoffset(PyObject * self, PyObject * args)
   const Py_ssize_t buflen = buf.len / buf.itemsize;
   /* initialize the buffer */
   for (Py_ssize_t i = 0; i < buflen; i++) {
-    bufarray[i] += offset;
+    bufarray[i] += value;
+  }
+
+  Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(arrayadd_q_doc,
+             "arrayadd_q(a, offset)"
+	     "Add the integer value to each value in the array **in-place**." 
+ 	     "- a: an array (or any object with the buffer interface) with elements of type 'q'\n"
+	     "- value: a signed integer\n");
+
+static PyObject *
+arrayadd_q(PyObject * self, PyObject * args)
+{
+  Py_buffer buf;
+  long long value;
+
+  if (!PyArg_ParseTuple(args, "y*L", &buf, &value)) {
+    return NULL;
+  }
+
+  if (buf.itemsize != sizeof(unsigned long long)) {
+    PyBuffer_Release(&buf);
+    PyErr_SetString(PyExc_ValueError, "The buffer must be of format type q.");
+    return NULL;
+  }
+  
+  unsigned long long * bufarray = (unsigned long long *) buf.buf;
+  const Py_ssize_t buflen = buf.len / buf.itemsize;
+  /* initialize the buffer */
+  for (Py_ssize_t i = 0; i < buflen; i++) {
+    bufarray[i] += value;
   }
 
   Py_RETURN_NONE;
@@ -196,8 +228,12 @@ static PyMethodDef fastqandfuriousModuleMethods[] = {
         METH_VARARGS, entrypos_doc,
     },
     {
-      "byteoffset", (PyCFunction)byteoffset,
-        METH_VARARGS, byteoffset_doc,
+      "arrayadd_b", (PyCFunction)arrayadd_b,
+        METH_VARARGS, arrayadd_b_doc,
+    },
+    {
+      "arrayadd_q", (PyCFunction)arrayadd_q,
+        METH_VARARGS, arrayadd_q_doc,
     },
     { NULL} // sentinel
 };
