@@ -1,11 +1,13 @@
-from typing import Callable
 from array import array
+from collections import namedtuple
+
+CHAR_AT = ord(b'@')
 CHAR_PLUS = ord(b'+')
 CHAR_NEWLINE = ord(b'\n')
-ARRAY_INIT = array('q', [-1,] * 6)
+ARRAY_INIT = array('q', [-1, ] * 6)
 
-from collections import namedtuple
 Entry = namedtuple('Entry', 'header sequence quality')
+
 
 def nextentrypos(blob, backlog) -> int:
     """
@@ -16,10 +18,8 @@ def nextentrypos(blob, backlog) -> int:
     :param backlog: bytes-like object with an unfinished entry from a "blob"
                     in the input right before this one. It can be an empty
                     sequence (e.g., b'')
-    
     """
 
-    
     # look for next "@" starting a line
     headerbeg_i = blob.find(b'\n@', 0)
 
@@ -28,12 +28,12 @@ def nextentrypos(blob, backlog) -> int:
     if lbacklog == 0:
         # this is all we have to make a decision then
         return headerbeg_i
-    
-    # it may still be begining of a "quality" line
+
+    # it may still be beginning of a "quality" line
     if (headerbeg_i == 0):
         if lbacklog > 1:
             if (backlog[-1] == CHAR_PLUS) and (backlog[-2] == CHAR_NEWLINE):
-                # if so, look for the next line starting with "@"
+               # if so, look for the next line starting with "@"
                 headerbeg_i = blob.find(b'\n@', headerbeg_i+1)
     elif (headerbeg_i == 1):
         if (blob[headerbeg_i-1] == CHAR_PLUS) and (backlog[-1] == CHAR_NEWLINE):
@@ -41,10 +41,22 @@ def nextentrypos(blob, backlog) -> int:
             headerbeg_i = blob.find(b'\n@', headerbeg_i+1)
     else:
         # headerbeg_i >= 2
-        if (blob[headerbeg_i-1] == CHAR_PLUS) and (blob[headerbeg_i-2] == CHAR_NEWLINE):
-            # if so, look for the next line starting with "@"
-            headerbeg_i = blob.find(b'\n@', headerbeg_i+1)
+        # The byte marked with a question mark below can be '@' (because FASTQ
+        # is a crazy format). 
+        #   @header
+        #   ...
+        #   +qual
+        #   ?..
+        #   @nextheader
+        #   ...
+        #   +nextqual
+        # We can figure out whether we have a quality line
+        # or a sequence line by checking the next entry.
+        nexteol_i = blob.find(b'\n', headerbeg_i+1)
+        if blob[nexteol_i+1] == CHAR_AT:
+            headerbeg_i = nexteol_i
     return headerbeg_i
+
 
 def _entrypos(blob, offset, posbuffer):
     posbuffer[:] = ARRAY_INIT
@@ -60,7 +72,7 @@ def _entrypos(blob, offset, posbuffer):
     posbuffer[1] = headerend_i
     if headerend_i == -1:
         return 1
-    
+
     # sequence
     seqbeg_i = headerend_i+1
     posbuffer[2] = seqbeg_i
@@ -73,7 +85,8 @@ def _entrypos(blob, offset, posbuffer):
         posbuffer[3] = seqend_i
         if blob[seqend_i + 1] != ord(b'+'):
             # multi-line FASTQ :/
-            raise ValueError("Multi-line FASTQ. Bye. (expected '+' but got '%s')." % \
+            raise ValueError("Multi-line FASTQ. Bye. (expected '+' but got '%s')."
+                             %
                              blob[max(0, seqend_i-3):min(len(blob), seqend_i+4)])
         if (seqend_i + 2) >= lblob:
             return 4
@@ -83,11 +96,14 @@ def _entrypos(blob, offset, posbuffer):
         else:
             # name in header can optionally be repeated
             lheader = posbuffer[1] - posbuffer[0] + 1
-            if (blob[seqend_i + lheader] == CHAR_NEWLINE) and \
+            if (seqend_i + lheader) >= lblob:
+                return 4
+            elif (blob[seqend_i + lheader] == CHAR_NEWLINE) and \
                (blob[(posbuffer[0]+1):posbuffer[1]] == blob[(seqend_i + 2):(seqend_i+lheader)]):
                 qualbeg_i = seqend_i + lheader + 1
             else:
-                raise ValueError("Invalid quality header (sequence header is '%s' and quality header is '%s'." % \
+                raise ValueError("Invalid quality header (sequence header is '%s' and quality header is '%s'."
+                                 %
                                  (blob[(posbuffer[0]):posbuffer[1]],
                                   blob[(seqend_i+1):(seqend_i+lheader)],))
     # quality
@@ -106,6 +122,7 @@ def _entrypos(blob, offset, posbuffer):
     else:
         return 6
 
+
 def entryfunc_namedtuple(buf, pos: array, globaloffset: int) -> Entry:
     """ 
     Build a FASTQ entry as a namedtuple with attributes header, sequence, and quality.
@@ -113,10 +130,12 @@ def entryfunc_namedtuple(buf, pos: array, globaloffset: int) -> Entry:
     - buf: bytes-like object
     - pos: array of indices/positions in `buf`
     """
+
     header = buf[(pos[0]+1):pos[1]]
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
     return Entry(header, sequence, quality)
+
 
 def entryfunc(buf, pos: array, globaloffset: int) -> tuple:
     """ 
@@ -129,7 +148,8 @@ def entryfunc(buf, pos: array, globaloffset: int) -> tuple:
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
     return (header, sequence, quality)
- 
+
+
 def entryfunc_abspos(buf, pos: array, globaloffset: int):
     """ 
     Return the absolute positions of the entry in the stream
@@ -142,12 +162,13 @@ def entryfunc_abspos(buf, pos: array, globaloffset: int):
     return pos
 
 
-def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entrypos,
+def readfastq_iter(fh, fbufsize: int, entryfunc=entryfunc, _entrypos=_entrypos,
                    globaloffset: int = 0):
     """
     The entries in the FASTQ files are parsed from chunks of size `fbufsize`),
     using the function `_entrypos` (that be changed as a parameter - an
-    faster implementation in C iblob[(posbuffer[0]+1):posbuffer[1]]s in `fastqandfurious._fastqandfurious.entrypos`).
+    faster implementation in C iblob[(posbuffer[0]+1):posbuffer[1]]s in
+    `fastqandfurious._fastqandfurious.entrypos`).
 
     With the current implementation, `fbufsize` must be large enough to contain
     the largest entry in the file. For example, is the longest read is 250bp long,
@@ -170,8 +191,8 @@ def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entryp
     - _entrypos: a function to find positions of entries 
 
     Returns an iterator over entries in the FASTQ file.
-
     """
+
     posbuffer = array('q', [-1, ] * 6)
     fbuf = bytearray(fbufsize)
     blob = fh.read(fbufsize)
@@ -227,5 +248,3 @@ def readfastq_iter(fh, fbufsize: int, entryfunc = entryfunc, _entrypos = _entryp
             yield entryfunc(backlog, posbuffer, adjustedglobaloffset)
             backlog = b''
             carryover = False
-
-

@@ -3,6 +3,7 @@ import io
 
 REFRESH_RATE=int(1E5)
 
+
 def benchmark_faf(fh, bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious
     total_seq = int(0)
@@ -15,6 +16,7 @@ def benchmark_faf(fh, bufsize: int = int(2**16)):
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+
 
 def benchmark_faf_c(fh, bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious, _fastqandfurious
@@ -30,6 +32,7 @@ def benchmark_faf_c(fh, bufsize: int = int(2**16)):
     finally:
         print()
         print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+
 
 def benchmark_faf_c_index(fh, fh_index, bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious, _fastqandfurious
@@ -63,6 +66,7 @@ def benchmark_faf_c_index(fh, fh_index, bufsize: int = int(2**16)):
         print()
         print('%i entries in %.3f seconds.' % (entry_i+1, time.time()-t0))
 
+
 def benchmark_ngsplumbing(fh):
     import ngs_plumbing.fastq
     total_seq = int(0)
@@ -75,6 +79,7 @@ def benchmark_ngsplumbing(fh):
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+
 
 def benchmark_screed(fn):
     import screed
@@ -89,6 +94,7 @@ def benchmark_screed(fn):
     print()
     print('%i entries' % (i+1))
 
+
 def benchmark_biopython(fh):
     from Bio import SeqIO
     total_seq = int(0)
@@ -102,6 +108,7 @@ def benchmark_biopython(fh):
     print()
     print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
+
 def benchmark_biopython_faster(fh):
     from Bio.SeqIO.QualityIO import FastqGeneralIterator
     total_seq = int(0)
@@ -114,6 +121,7 @@ def benchmark_biopython_faster(fh):
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
     print()
     print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+
 
 def benchmark_biopython_adapter(fh):
     total_seq = int(0)
@@ -145,6 +153,7 @@ def benchmark_biopython_adapter(fh):
     print()
     print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
 
+
 def _opener(filename):
     if filename.endswith('.gz'):
         import gzip
@@ -157,7 +166,8 @@ def _opener(filename):
         return lzma.open
     else:
         return open
-    
+
+
 def run_speed(args):
 
     print('Running benchmark on file %s' % args.filename)
@@ -182,7 +192,7 @@ def run_speed(args):
         lst.append(('fastqandfurious', benchmark_faf, 'rb'))
     lst.append(('fastqandfurious (w/ C-ext)', benchmark_faf_c, 'rb'))
     lst.append(('fastqandfurious (w/ C-ext and indexing)', benchmark_faf_c_index, 'rb'))
-    
+
     for name, func, mode in lst:
         print('---')
         print(name)
@@ -213,14 +223,15 @@ def run_speed(args):
                     func(fh, fh_index)
                     #except Exception as e:
                     #    print('Error: %s' % str(e))
-
         else:
             with open(args.filename, mode, buffering = args.io_buffersize) as f:
                 with openfunc(f) as fh:
-                    try:
+                    #try:
+                    if True:
                         func(fh)
-                    except Exception as e:
-                        print('Error: %s' % str(e))
+                    #except Exception as e:
+                    #    print('Error: %s' % str(e))
+
 
 def _screed_iter(fn):
     import screed
@@ -228,12 +239,14 @@ def _screed_iter(fn):
     for i, e in enumerate(it):
         yield (i, e.name.encode('ascii'), str(e.sequence).encode('ascii'))
 
+
 def _biopython_iter(fn, mode, buffering):
     from Bio import SeqIO
     openfunc = _opener(fn)
     with openfunc(fn, mode=mode) as fh: 
         for i, e in enumerate(SeqIO.parse(fh, "fastq")):
             yield (i, e.description.encode('ascii'), str(e.seq).encode('ascii'))
+
 
 def _ngs_plumbing_iter(fn, mode, buffering):
     import ngs_plumbing.fastq
@@ -243,6 +256,7 @@ def _ngs_plumbing_iter(fn, mode, buffering):
             it = ngs_plumbing.fastq.read_fastq(fh)
             for i, e in enumerate(it):
                 yield (i, e.header[1:], e.sequence)
+
 
 def _fastqandfurious_iter(fn, mode, buffering):
     from fastqandfurious import fastqandfurious
@@ -254,6 +268,7 @@ def _fastqandfurious_iter(fn, mode, buffering):
             for i, e in enumerate(it):
                 yield (i, e.header, e.sequence)
 
+
 def _fastqandfurious_c_iter(fn, mode, buffering):
     from fastqandfurious import fastqandfurious, _fastqandfurious
     bufsize = int(5E4)
@@ -263,6 +278,7 @@ def _fastqandfurious_c_iter(fn, mode, buffering):
             it = fastqandfurious.readfastq_iter(fh, bufsize, _entrypos=_fastqandfurious.entrypos)
             for i, e in enumerate(it):
                 yield (i, e.header, e.sequence)
+
 
 def run_compare(args):
     res = list()
@@ -287,7 +303,8 @@ def run_compare(args):
         assert e1[1] == e2[1] # header
         assert e1[2] == e2[2] # sequence
     print('\rcompared %i entries' % (i+1))
-            
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
