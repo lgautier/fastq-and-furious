@@ -130,12 +130,11 @@ In a nutshell, the reader takes a file-like object, a buffersize (number of byte
 and a function called when yielding entries (to produce "entry" objects):
 
 ```python
-
 from fastqandfurious import fastqandfurious
 from fastqandfurious.fastqandfurious import entryfunc
 
 bufsize = 20000
-with open("a/fastq/file.fq") as fh:
+with open("a/fastq/file.fq", "rb") as fh:
     it = fastqandfurious.readfastq_iter(fh, bufsize, entryfunc)
     for sequence in it:
         # do something
@@ -150,7 +149,7 @@ import gzip
 from fastqandfurious import fastqandfurious
 from fastqandfurious.fastqandfurious import entryfunc
 
-with gzip.open("a/fastq/file.fq") as fh:
+with gzip.open("a/fastq/file.fq", "rb") as fh:
     it = fastqandfurious.readfastq_iter(fh, bufsize, entryfunc)
     for entry in it:
         # do something
@@ -182,7 +181,7 @@ def biopython_entryfunc(buf, posarray):
     return entry
 
 bufsize = 20000
-with open("a/fastq/file.fq") as fh:
+with open("a/fastq/file.fq", "rb") as fh:
     it = fastqandfurious.readfastq_iter(fh, bufsize, biopython_entryfunc)
     for entry in it:
         # do something
@@ -203,7 +202,7 @@ def lengthfilter_entryfunc(buf, posarray):
     else:
         return None
 
-with open("a/fastq/file.fq") as fh:
+with open("a/fastq/file.fq", "rb") as fh:
     it = fastqandfurious.readfastq_iter(fh, bufsize, lengthfilter_entryfunc)
     for sequence in it:
         if sequence is None:
@@ -254,7 +253,7 @@ def lengthfilter_entryfunc(buf, posarray):
     else:
         return None
 
-with open("a/fastq/file.fq") as fh:
+with open("a/fastq/file.fq", "rb") as fh:
     it = fastqandfurious.readfastq_iter(fh, bufsize, lengthfilter_entryfunc)
     for sequence in it:
         if sequence is None:
