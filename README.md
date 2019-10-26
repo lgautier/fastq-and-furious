@@ -131,7 +131,8 @@ and a function called when yielding entries (to produce "entry" objects):
 
 ```python
 
-from fastqandfurious import fastqandfurious, entryfunc
+from fastqandfurious import fastqandfurious
+from fastqandfurious.fastqandfurious import entryfunc
 
 bufsize = 20000
 with open("a/fastq/file.fq") as fh:
@@ -146,6 +147,9 @@ file is working the same:
 
 ```python
 import gzip
+from fastqandfurious import fastqandfurious
+from fastqandfurious.fastqandfurious import entryfunc
+
 with gzip.open("a/fastq/file.fq") as fh:
     it = fastqandfurious.readfastq_iter(fh, bufsize, entryfunc)
     for entry in it:
