@@ -16,9 +16,12 @@ def _test_readfastq_iter(filename, bufsize, entrypos):
 def test_readfastq_iter(filename):
     bufsize = 600
     _test_readfastq_iter(filename, bufsize, fastqandfurious._entrypos)
-    # buffer too low
+
+
+@pytest.mark.parametrize('filename', ('data/test.fq', 'data/test_longqualityheader.fq'))
+def test_readfastq_iter_buftoosmall(filename):
+    bufsize = 100
     with pytest.raises(RuntimeError):
-        bufsize = 100
         _test_readfastq_iter(filename, bufsize, fastqandfurious._entrypos)
 
 
@@ -32,9 +35,12 @@ def test_readfastq_iter_error():
 def test_readfastq_c_iter(filename):
     bufsize = 600
     _test_readfastq_iter(filename, bufsize, _fastqandfurious.entrypos)
-    # buffer too low
+
+
+@pytest.mark.parametrize('filename', ('data/test.fq', 'data/test_longqualityheader.fq'))
+def test_readfastq_c_iter_buftoosmall(filename):
+    bufsize = 100
     with pytest.raises(RuntimeError):
-        bufsize = 100
         _test_readfastq_iter(filename, bufsize, _fastqandfurious.entrypos)
 
 
@@ -64,9 +70,12 @@ def _test_readfastq_abspos(filename, bufsize, entrypos):
 def test_readfastq_abspos(filename):
     bufsize = 600
     _test_readfastq_abspos(filename, bufsize, fastqandfurious._entrypos)
-    # buffer too low
+
+
+@pytest.mark.parametrize('filename', ('data/test.fq', 'data/test_longqualityheader.fq'))
+def test_readfastq_abspos_buftoosmall(filename):
+    bufsize = 100
     with pytest.raises(RuntimeError):
-        bufsize = 100
         _test_readfastq_abspos(filename, bufsize, fastqandfurious._entrypos)
 
 
