@@ -28,30 +28,6 @@ matrix:
     - os: linux
       python: 3.8
       compiler: gcc
-    - os: osx
-      osx_image: xcode9.4
-      language: sh
-      addons:
-        homebrew:
-          update: true
-          packages: python3
-      language: generic
-    - os: osx
-      osx_image: xcode10.3
-      language: sh
-      addons:
-        homebrew:
-          update: true
-          packages: python3
-      language: generic
-      - os: osx
-      osx_image: xcode11.2
-      language: sh
-      addons:
-        homebrew:
-          update: true
-          packages: python3
-      language: generic
 
 before_install:
   - |
@@ -73,5 +49,5 @@ install:
 script:
   - |
     flake8 src/fastqandfurious.py
-    pytest  --cov=fastqandfurious --cov-report=xml --cov-report=term tests.py
+    pytest --cov=fastqandfurious --cov-report=xml --cov-report=term tests.py
   - codecov
