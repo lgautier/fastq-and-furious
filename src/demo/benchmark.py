@@ -330,7 +330,7 @@ if __name__ == '__main__':
                               help='Test with adapter for "biopython" (unless --no-biopython specified)')
     parser_speed.add_argument('--io-buffersize',
                               type = int,
-                              default = 2**13)
+                              default = int(50E3))
     parser_speed.add_argument('filename',
                               help='name of a FASTQ file (optionally gzip, bzip2, or lzma-compressed)')
     parser_speed.set_defaults(func=run_speed)
