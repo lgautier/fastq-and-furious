@@ -30,11 +30,13 @@ matrix:
       compiler: gcc
     - os: osx
       osx_image: xcode9.4
+      python: 3.6
     - os: osx
       osx_image: xcode10.3
+      python: 3.6
     - os: osx
       osx_image: xcode11.2
-      language: generic
+      python: 3.6
 
 before_install:
   - |
