@@ -30,18 +30,32 @@ matrix:
       compiler: gcc
     - os: osx
       osx_image: xcode9.4
-      python: 3.6
+      language: sh
+      addons:
+        homebrew:
+	  update: true
+	  packages: python3
+      language: generic
     - os: osx
       osx_image: xcode10.3
-      python: 3.6
-    - os: osx
+      language: sh
+      addons:
+        homebrew:
+	  update: true
+	  packages: python3
+      language: generic
+      - os: osx
       osx_image: xcode11.2
-      python: 3.6
+      language: sh
+      addons:
+        homebrew:
+	  update: true
+	  packages: python3
+      language: generic
 
 before_install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew upgrade python3
       python3 -m venv venv 
       source venv/bin/activate
     fi
