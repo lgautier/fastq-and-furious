@@ -165,6 +165,7 @@ immediate performance gains - see benchmark below).
 For biopython, it could look like:
 
 ```python
+from fastqandfurious import fastqandfurious
 from fastqandfurious._fastqandfurious import arrayadd_b
 from Bio.SeqRecord import SeqRecord
 from array import array
