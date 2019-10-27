@@ -33,24 +33,24 @@ matrix:
       language: sh
       addons:
         homebrew:
-	  update: true
-	  packages: python3
+          update: true
+          packages: python3
       language: generic
     - os: osx
       osx_image: xcode10.3
       language: sh
       addons:
         homebrew:
-	  update: true
-	  packages: python3
+          update: true
+          packages: python3
       language: generic
       - os: osx
       osx_image: xcode11.2
       language: sh
       addons:
         homebrew:
-	  update: true
-	  packages: python3
+          update: true
+          packages: python3
       language: generic
 
 before_install:
@@ -71,6 +71,7 @@ install:
 
 # command to run tests
 script:
-  - flake8 src/fastqandfurious.py
+  - |
+    flake8 src/fastqandfurious.py
   - python -m pytest --cov=fastqandfurious --cov-report xml --cov-report term tests.py
   - codecov
