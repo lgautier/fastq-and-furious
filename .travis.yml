@@ -73,5 +73,5 @@ install:
 script:
   - |
     flake8 src/fastqandfurious.py
-  - python -m pytest --cov=fastqandfurious --cov-report xml --cov-report term tests.py
+    pytest  --cov=fastqandfurious --cov-report=xml --cov-report=term tests.py
   - codecov
