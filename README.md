@@ -170,7 +170,7 @@ from fastqandfurious._fastqandfurious import arrayadd_b
 from Bio.SeqRecord import SeqRecord
 from array import array
 
-def biopython_entryfunc(buf, posarray):
+def biopython_entryfunc(buf, posarray, globaloffset):
     name = buf[posarray[0]:posarray[1]].decode('ascii')
     quality = array('b')
     quality.frombytes(buf[posarray[4]:posarray[5]])
@@ -180,6 +180,7 @@ def biopython_entryfunc(buf, posarray):
                       name=name,
                       letter_annotations={'phred_quality': quality})
     return entry
+
 
 bufsize = 20000
 with open("a/fastq/file.fq", "rb") as fh:
