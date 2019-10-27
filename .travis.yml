@@ -31,24 +31,13 @@ matrix:
     - os: osx
       osx_image: xcode9.4
       language: sh
-      addons:
-        homebrew:
-          update: true
-          packages: python3
     - os: osx
       osx_image: xcode10.3
       language: sh
-      addons:
-        homebrew:
-          update: true
-          packages: python3
       - os: osx
       osx_image: xcode11.2
       language: sh
       addons:
-        homebrew:
-          update: true
-          packages: python3
 
 before_install:
   - |
