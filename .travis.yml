@@ -16,16 +16,33 @@ matrix:
     - os: linux
       python: 3.6
       compiler: gcc
-    - os: osx
+    - os: linux
+      python: 3.7
       compiler: clang
-    - os: osx
+    - os: linux
+      python: 3.7
       compiler: gcc
+    - os: linux
+      python: 3.8
+      compiler: clang
+    - os: linux
+      python: 3.8
+      compiler: gcc
+    - os: osx
+      osx_image: xcode9.4
+    - os: osx
+      osx_image: xcode10.3
+    - os: osx
+      osx_image: xcode11.2
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python3; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then virtualenv venv -p python3; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source venv/bin/activate; fi
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
+      brew install python3
+      virtualenv venv -p python3
+      source venv/bin/activate
+    fi
   - pip install codecov
   - pip install pytest --upgrade
   - pip install pytest-cov
