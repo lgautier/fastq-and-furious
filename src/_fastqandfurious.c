@@ -22,7 +22,7 @@ entrypos(PyObject * self, PyObject * args)
     return NULL;
   }
 
-  const char * blob_char = (char *)blob.buf;
+  char * blob_char = (char *)blob.buf;
       
   if (posbuffer.itemsize != sizeof(signed long long)) {
     PyBuffer_Release(&blob);
@@ -122,16 +122,38 @@ entrypos(PyObject * self, PyObject * args)
     PyBuffer_Release(&posbuffer);
     return PyLong_FromLong(4L);
   }
-  if (blob_char[posarray[3] + 2] != '\n') {
-    PyErr_SetString(PyExc_ValueError,
-		    "The character after the delimiter for quality should be a new line (the variant where the ID is repeated is not handled).");
-    PyBuffer_Release(&blob);
-    PyBuffer_Release(&posbuffer);
-    return NULL;
-  }
 
   /* quality */
-  posarray[4] = posarray[3]+3;
+  if (blob_char[posarray[3] + 2] == '\n') {
+    posarray[4] = posarray[3]+3;
+    //        qualbeg_i = seqend_i+3
+  } else {
+    /* name in header can optionally be repeated */
+    Py_ssize_t lheader = posarray[1] - posarray[0] + 1;
+    if ((posarray[1] + lheader) >= blob.len) {
+      PyBuffer_Release(&blob);
+      PyBuffer_Release(&posbuffer);
+      return PyLong_FromLong(4L);
+    } else if ((blob_char[posarray[1] + lheader] == '\n') &&
+	       ((posarray[1]-posarray[0]+1) == (lheader-2)) &&
+	       strncmp(blob_char + posarray[0] + 1, blob_char + posarray[1] + 2, lheader-2) == 0) {
+      posarray[4] = posarray[1] + lheader + 1;
+    } else {
+      PyErr_Format(
+		   PyExc_ValueError,
+		   "Invalid quality header "
+		   "(sequence header at blob[%lu:%lu], sequence at blob[%lu:%lu], "
+		   "quality header at blob[%lu:%lu]).",
+		   posarray[0]+1, posarray[1],
+		   posarray[2], posarray[3],
+		   posarray[3]+1, posarray[3]+lheader
+		   );
+      PyBuffer_Release(&blob);
+      PyBuffer_Release(&posbuffer);
+      return NULL;
+    } 
+  }
+
   if (posarray[4] == blob.len) { // or posarray[3] == -1 ?
     posarray[4] = -1;
     PyBuffer_Release(&blob);
@@ -146,7 +168,8 @@ entrypos(PyObject * self, PyObject * args)
     PyBuffer_Release(&posbuffer);
     return PyLong_FromLong(5L);
   } else if (blob_char[posarray[5]] != '\n') {
-    PyErr_SetString(PyExc_ValueError, "The last characted in the quality line is not a new line.");
+    blob_char[((posarray[5] + 10) >= blob.len ? (blob.len-1) : (posarray[5] + 10))] = 0;
+    PyErr_Format(PyExc_ValueError, "The last character in the quality line is not a new line: %s.", blob_char + posarray[5]);
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
     return NULL;
