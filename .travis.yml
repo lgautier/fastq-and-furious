@@ -65,13 +65,12 @@ before_install:
     pip install pytest --upgrade
     pip install pytest-cov
     pip install biopython
-    
+
 install:
   - python setup.py install
-    
+
 # command to run tests
 script:
   - flake8 src/fastqandfurious.py
   - python -m pytest --cov=fastqandfurious --cov-report xml --cov-report term tests.py
   - codecov
-    
