@@ -45,16 +45,19 @@ before_install:
       python3 -m venv venv 
       source venv/bin/activate
     fi
-  - pip install codecov
-  - pip install pytest --upgrade
-  - pip install pytest-cov
-  - pip install biopython
+  - |
+    pip install flake8
+    pip install codecov
+    pip install pytest --upgrade
+    pip install pytest-cov
+    pip install biopython
     
 install:
   - python setup.py install
     
 # command to run tests
 script:
+  - flake8 src/fastqandfurious.py
   - python -m pytest --cov=fastqandfurious --cov-report xml --cov-report term tests.py
   - codecov
     

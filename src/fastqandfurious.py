@@ -11,8 +11,8 @@ Entry = namedtuple('Entry', 'header sequence quality')
 
 def nextentrypos(blob, backlog) -> int:
     """
-    Return the position (index) for the begining of next FASTQ entry in a "blob" of text,
-    or -1 if it cannot find any.
+    Return the position (index) for the begining of next FASTQ entry in
+    a "blob" of text, or -1 if it cannot find any.
 
     :param blob: a "blob" of text as a bytes-like object
     :param backlog: bytes-like object with an unfinished entry from a "blob"
@@ -32,17 +32,21 @@ def nextentrypos(blob, backlog) -> int:
     # it may still be beginning of a "quality" line
     if (headerbeg_i == 0):
         if lbacklog > 1:
-            if (backlog[-1] == CHAR_PLUS) and (backlog[-2] == CHAR_NEWLINE):
-               # if so, look for the next line starting with "@"
+            if backlog[-2:] == b'\n+':
+                # if so, look for the next line starting with "@"
                 headerbeg_i = blob.find(b'\n@', headerbeg_i+1)
     elif (headerbeg_i == 1):
-        if (blob[headerbeg_i-1] == CHAR_PLUS) and (backlog[-1] == CHAR_NEWLINE):
+        if (
+                (blob[headerbeg_i-1] == CHAR_PLUS)
+                and
+                (backlog[-1] == CHAR_NEWLINE)
+        ):
             # if so, look for the next line starting with "@"
             headerbeg_i = blob.find(b'\n@', headerbeg_i+1)
     else:
         # headerbeg_i >= 2
         # The byte marked with a question mark below can be '@' (because FASTQ
-        # is a crazy format). 
+        # is a crazy format).
         #   @header
         #   ...
         #   +qual
@@ -85,27 +89,38 @@ def _entrypos(blob, offset, posbuffer):
         posbuffer[3] = seqend_i
         if blob[seqend_i + 1] != ord(b'+'):
             # multi-line FASTQ :/
-            raise ValueError("Multi-line FASTQ. Bye. (expected '+' but got '%s')."
-                             %
-                             blob[max(0, seqend_i-3):min(len(blob), seqend_i+4)])
+            raise ValueError(
+                "Multi-line FASTQ. Bye. (expected '+' but got '%s')."
+                %
+                blob[max(0, seqend_i-3):min(len(blob), seqend_i+4)]
+            )
         if (seqend_i + 2) >= lblob:
             return 4
         if blob[seqend_i + 2] == CHAR_NEWLINE:
-            # if most-common situation where separator for quality sequence only a "+"
+            # if most-common situation where separator for quality
+            # sequence only a "+".
             qualbeg_i = seqend_i+3
         else:
             # name in header can optionally be repeated
             lheader = posbuffer[1] - posbuffer[0] + 1
             if (seqend_i + lheader) >= lblob:
                 return 4
-            elif (blob[seqend_i + lheader] == CHAR_NEWLINE) and \
-               (blob[(posbuffer[0]+1):posbuffer[1]] == blob[(seqend_i + 2):(seqend_i+lheader)]):
+            elif (
+                    (blob[seqend_i + lheader] == CHAR_NEWLINE)
+                    and
+                    (blob[(posbuffer[0]+1):posbuffer[1]]
+                     ==
+                     blob[(seqend_i + 2):(seqend_i+lheader)])
+            ):
                 qualbeg_i = seqend_i + lheader + 1
             else:
-                raise ValueError("Invalid quality header (sequence header is '%s' and quality header is '%s'."
-                                 %
-                                 (blob[(posbuffer[0]):posbuffer[1]],
-                                  blob[(seqend_i+1):(seqend_i+lheader)],))
+                raise ValueError(
+                    "Invalid quality header (sequence header is '%s' and "
+                    "quality header is '%s'."
+                    %
+                    (blob[(posbuffer[0]):posbuffer[1]],
+                     blob[(seqend_i+1):(seqend_i+lheader)],)
+                )
     # quality
     if qualbeg_i >= lblob or seqend_i == -1:
         return 4
@@ -124,8 +139,9 @@ def _entrypos(blob, offset, posbuffer):
 
 
 def entryfunc_namedtuple(buf, pos: array, globaloffset: int) -> Entry:
-    """ 
-    Build a FASTQ entry as a namedtuple with attributes header, sequence, and quality.
+    """
+    Build a FASTQ entry as a namedtuple with attributes header, sequence,
+    and quality.
 
     - buf: bytes-like object
     - pos: array of indices/positions in `buf`
@@ -138,7 +154,7 @@ def entryfunc_namedtuple(buf, pos: array, globaloffset: int) -> Entry:
 
 
 def entryfunc(buf, pos: array, globaloffset: int) -> tuple:
-    """ 
+    """
     Build a FASTQ entry as a tuple (header, sequence, quality)
 
     - buf: bytes-like object
@@ -151,13 +167,13 @@ def entryfunc(buf, pos: array, globaloffset: int) -> tuple:
 
 
 def entryfunc_abspos(buf, pos: array, globaloffset: int):
-    """ 
+    """
     Return the absolute positions of the entry in the stream
 
     - buf: bytes-like object
     - pos: array of indices/positions in `buf`
     """
-    for i in (0,1,2,3,4,5):
+    for i in (0, 1, 2, 3, 4, 5):
         pos[i] += globaloffset
     return pos
 
@@ -171,60 +187,80 @@ def readfastq_iter(fh, fbufsize: int, entryfunc=entryfunc, _entrypos=_entrypos,
     `fastqandfurious._fastqandfurious.entrypos`).
 
     With the current implementation, `fbufsize` must be large enough to contain
-    the largest entry in the file. For example, is the longest read is 250bp long,
-    and the identifier is 25-char long, the minimum buffer size will be about
-    525. Aiming for that minimum is not advised, as some of the speed comes
-    for working on buffers, and larger buffers able to contain many entries will
-    lead to better performances (with the cave at that very large buffer might be
-    counter-productive as the iterator will need to read data to fill the buffer
-    (or all data, whichever is the smallest) before starting to yield entries. A
-    value between 20,000 and 50,000 (20KB-50KB) gives pretty good results on this end.
+    the largest entry in the file. For example, is the longest read is 250bp
+    long, and the identifier is 25-char long, the minimum buffer size will be
+    about 525. Aiming for that minimum is not advised, as some of the speed
+    comes for working on buffers, and larger buffers able to contain many
+    entries will lead to better performances (with the cave at that very large
+    buffer might be counter-productive as the iterator will need to read data
+    to fill the buffer (or all data, whichever is the smallest) before starting
+    to yield entries. A value between 20,000 and 50,000 (20KB-50KB) gives
+    pretty good results on this end.
 
-    `entryfunc` can be any function taking a bytes-like objects and an 
-    array of position (array of signed integers of length 6: header (begin, end),
-    sequence (begin, end), and quality (begin, end). This allows plugging this
-    parser into existing code bases / frameworks very easily.
- 
+    `entryfunc` can be any function taking a bytes-like objects and an
+    array of position (array of signed integers of length 6:
+    header (begin, end), sequence (begin, end), and quality (begin, end).
+    This allows plugging this parser into existing code bases / frameworks
+    very easily.
+
     - fh: file-like object or stream (just needs a method `read`)
     - fbufsize: buffer size (see note above)
-    - entryfunc: a function to build an entry object (taking a bytes-like object and an array of positions)
-    - _entrypos: a function to find positions of entries 
+    - entryfunc: a function to build an entry object (taking a bytes-like
+      object and an array of positions)
+    - _entrypos: a function to find positions of entries
 
     Returns an iterator over entries in the FASTQ file.
     """
 
     posbuffer = array('q', [-1, ] * 6)
-    fbuf = bytearray(fbufsize)
     blob = fh.read(fbufsize)
-    #mblob = memoryview(blob)
+    # TODO: Would using a memoryview on the read buffer lead to further
+    # performance improvement ? (more related TODOs below)
+    # fbuf = bytearray(fbufsize)
+    # fh.readinto(fbuf)
+    # mblob = memoryview(fbuf)
     carryover = False
     offset = 0
     backlog = b''
-    # FIXME
-    header = b''
     lblob = len(blob)
     while blob != b'':
         posbuffer[0] = 0
         posbuffer[2] = 0
         posbuffer[3] = 0
         qualend_i = 0
-        while qualend_i  < (lblob-1) and posbuffer[3] >= 0 and posbuffer[2] >= 0:
+        while (
+                qualend_i < (lblob-1)
+                and
+                posbuffer[3] >= 0
+                and
+                posbuffer[2] >= 0
+        ):
+            # TODO: If using a memory view mblob, it could be used instead
+            # of the bytes object blob when calling _entrypos().
             npos = _entrypos(blob, offset, posbuffer)
             qualend_i = posbuffer[5]
             if npos < 6:
-                #if headerbeg_i == -1:
+                # TODO: This is a debug snippet. Assess whether still needed
+                # and remove if it is not.
+                # if headerbeg_i == -1:
                 #    import pdb; pdb.set_trace()
                 #    raise RuntimeError("Missing begining of entry ?")
                 carryover = True
-                backlog = blob[offset:] # bytes(mblob[offset:])
+                # TODO: If using a memoryview, the subseting could be like
+                # would still used the raw buffer because a copy needs to
+                # be made anyway.
+                backlog = blob[offset:]
                 break
             else:
-                #(headerbeg_i, headerend_i, seqbeg_i, seqend_i, qualbeg_i, qualend_i) = posbuffer
+                # (headerbeg_i, headerend_i, seqbeg_i, seqend_i,
+                #  qualbeg_i, qualend_i) = posbuffer
                 yield entryfunc(blob, posbuffer, globaloffset)
                 offset = qualend_i+1
         globaloffset += lblob
         blob = fh.read(fbufsize)
-        #mblob = memoryview(blob)
+        # TODO: If using a memory view, the new chunk read from the file
+        # should be used to get the new memory view.
+        # mblob = memoryview(blob)
         lblob = len(blob)
         offset = 0
         if carryover:
@@ -236,15 +272,17 @@ def readfastq_iter(fh, fbufsize: int, entryfunc=entryfunc, _entrypos=_entrypos,
             else:
                 nextentry_i = nextentrypos(blob, backlog)
             if nextentry_i == -1:
-                raise RuntimeError("Incomplete last entry, or buffer too small.")
+                raise RuntimeError(
+                    'Incomplete last entry, or buffer too small.'
+                )
             # FIXME:
             adjustedglobaloffset = globaloffset-len(backlog)
             backlog = backlog + blob[:(nextentry_i+1)]
             offset = nextentry_i+1
             npos = _entrypos(backlog, 0, posbuffer)
             if npos < 6:
-                # FIXME: handle this case
-                raise RuntimeError("The buffer is too small !")
+                # TODO: Can the case of a buffer too small be handled nicely ?
+                raise RuntimeError('The buffer is too small !')
             yield entryfunc(backlog, posbuffer, adjustedglobaloffset)
             backlog = b''
             carryover = False
