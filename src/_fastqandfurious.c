@@ -30,7 +30,7 @@ entrypos(PyObject * self, PyObject * args)
   }
 
   char * blob_char = (char *)blob.buf;
-      
+
   if (posbuffer.itemsize != sizeof(signed long long)) {
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
@@ -53,11 +53,11 @@ entrypos(PyObject * self, PyObject * args)
   for (Py_ssize_t i = 0; i < 6; i++) {
     posarray[i] = -1;
   }
-  
+
   /* header */
   char * headerbeg_adr = (char *)memchr(blob_char + cur_offset, '@', blob.len - cur_offset - 1);
   if (headerbeg_adr == NULL) {
-    headerbeg_adr = blob_char -1 ;    
+    headerbeg_adr = blob_char -1 ;
   }
   posarray[POS_HEAD_BEG] = (Py_ssize_t) (headerbeg_adr - blob_char);
 
@@ -132,7 +132,7 @@ entrypos(PyObject * self, PyObject * args)
     /*   printf("%c",blob_char[i]); */
     /* printf("\n---\n"); */
     /* /\* --- *\/ */
-    
+
     PyErr_SetString(PyExc_ValueError, "Multi-line FASTQ. Bye.");
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
@@ -148,7 +148,7 @@ entrypos(PyObject * self, PyObject * args)
   /* quality */
 
   /* POS_SEQ_END corresponds to the end of the sequence, including the EOL character \n.
-   * If a FASTQ file withou quality header, there will only be '+\n' after this. 
+   * If a FASTQ file withou quality header, there will only be '+\n' after this.
    */
   if (blob_char[posarray[POS_SEQ_END] + 2] == '\n') {
     posarray[POS_QUAL_BEG] = posarray[POS_SEQ_END]+3;
@@ -156,7 +156,7 @@ entrypos(PyObject * self, PyObject * args)
   } else {
     /* The header can optionally be repeated in the separator for quality. */
     Py_ssize_t lenheader = posarray[POS_HEAD_END] - posarray[POS_HEAD_BEG] + 1;
-    if ((posarray[POS_HEAD_END] + lenheader) >= blob.len) {
+    if ((posarray[POS_SEQ_END] + lenheader) >= blob.len) {
       /* The buffer ends in the middle of an entry. */
       PyBuffer_Release(&blob);
       PyBuffer_Release(&posbuffer);
@@ -176,7 +176,7 @@ entrypos(PyObject * self, PyObject * args)
       return NULL;
     } else {
       posarray[POS_QUAL_BEG] = posarray[POS_SEQ_END] + lenheader + 1;
-    } 
+    }
   }
 
   if (posarray[POS_QUAL_BEG] >= blob.len) { // or posarray[3] == -1 ?
@@ -207,7 +207,7 @@ entrypos(PyObject * self, PyObject * args)
 
 PyDoc_STRVAR(arrayadd_b_doc,
              "arrayadd_b(a, offset)"
-             "Add the integer value to each value in the array **in-place**." 
+             "Add the integer value to each value in the array **in-place**."
  	     "- a: an array (or any object with the buffer interface) with elements of type 'b'\n"
 	     "- value: a signed integer\n");
 
@@ -226,7 +226,7 @@ arrayadd_b(PyObject * self, PyObject * args)
     PyErr_SetString(PyExc_ValueError, "The buffer must be of format type b.");
     return NULL;
   }
-  
+
   signed char * bufarray = (signed char *) buf.buf;
   const Py_ssize_t buflen = buf.len / buf.itemsize;
   /* initialize the buffer */
@@ -239,7 +239,7 @@ arrayadd_b(PyObject * self, PyObject * args)
 
 PyDoc_STRVAR(arrayadd_q_doc,
              "arrayadd_q(a, offset)"
-	     "Add the integer value to each value in the array **in-place**." 
+	     "Add the integer value to each value in the array **in-place**."
  	     "- a: an array (or any object with the buffer interface) with elements of type 'q'\n"
 	     "- value: a signed integer\n");
 
@@ -258,7 +258,7 @@ arrayadd_q(PyObject * self, PyObject * args)
     PyErr_SetString(PyExc_ValueError, "The buffer must be of format type q.");
     return NULL;
   }
-  
+
   unsigned long long * bufarray = (unsigned long long *) buf.buf;
   const Py_ssize_t buflen = buf.len / buf.itemsize;
   /* initialize the buffer */
@@ -299,7 +299,7 @@ PyInit__fastqandfurious(void)
     PyObject *m;
 
     m = PyModule_Create(&moduledef);
-    
+
     if (m == NULL) {
         return NULL;
     }
