@@ -13,9 +13,10 @@ def _test_readfastq_iter(filename, bufsize, entrypos):
 
 
 @pytest.mark.parametrize('filename', ('data/test.fq', 'data/test_longqualityheader.fq'))
-def test_readfastq_iter(filename):
+@pytest.mark.parametrize('func', (fastqandfurious._entrypos, _fastqandfurious.entrypos))
+def test_readfastq_iter(filename, func):
     bufsize = 600
-    _test_readfastq_iter(filename, bufsize, fastqandfurious._entrypos)
+    _test_readfastq_iter(filename, bufsize, func)
 
 
 @pytest.mark.parametrize('filename', ('data/test.fq', 'data/test_longqualityheader.fq'))
@@ -25,16 +26,11 @@ def test_readfastq_iter_buftoosmall(filename):
         _test_readfastq_iter(filename, bufsize, fastqandfurious._entrypos)
 
 
-def test_readfastq_iter_error():
+@pytest.mark.parametrize('func', (fastqandfurious._entrypos, _fastqandfurious.entrypos))
+def test_readfastq_iter_error(func):
     bufsize = 600
     with pytest.raises(ValueError):
-        _test_readfastq_iter("data/test_tricky.fq", bufsize, fastqandfurious._entrypos)
-
-
-@pytest.mark.parametrize('filename', ('data/test.fq', 'data/test_longqualityheader.fq'))
-def test_readfastq_c_iter(filename):
-    bufsize = 600
-    _test_readfastq_iter(filename, bufsize, _fastqandfurious.entrypos)
+        _test_readfastq_iter("data/test_tricky.fq", bufsize, func)
 
 
 @pytest.mark.parametrize('filename', ('data/test.fq', 'data/test_longqualityheader.fq'))
@@ -42,12 +38,6 @@ def test_readfastq_c_iter_buftoosmall(filename):
     bufsize = 100
     with pytest.raises(RuntimeError):
         _test_readfastq_iter(filename, bufsize, _fastqandfurious.entrypos)
-
-
-def test_readfastq_c_iter_error():
-    bufsize = 600
-    with pytest.raises(ValueError):
-        _test_readfastq_iter("data/test_tricky.fq", bufsize, fastqandfurious._entrypos)
 
 
 def _test_readfastq_abspos(filename, bufsize, entrypos):
@@ -82,4 +72,4 @@ def test_readfastq_abspos_buftoosmall(filename):
 def test_readfastq_abspos_error():
     bufsize = 600
     with pytest.raises(ValueError):
-        _test_readfastq_iter("data/test_tricky.fq", bufsize, fastqandfurious._entrypos)
+        _test_readfastq_abspos("data/test_tricky.fq", bufsize, fastqandfurious._entrypos)
