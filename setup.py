@@ -5,7 +5,7 @@ import warnings
 
 PYPINAME = "fastq-and-furious"
 PACKAGENAME = "fastqandfurious"
-VERSION="0.3.0"
+VERSION="0.3.1"
 
 extra_compile_args = ['-Wall']
 
