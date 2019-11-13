@@ -4,12 +4,15 @@
 #include <stdio.h>
 #include <string.h>
 
+#define INVALID -1
 #define POS_HEAD_BEG 0
 #define POS_HEAD_END 1
 #define POS_SEQ_BEG 2
 #define POS_SEQ_END 3
 #define POS_QUAL_BEG 4
 #define POS_QUAL_END 5
+#define COMPLETE 6
+#define MISSING_QUALHEADER_END 7
 
 PyDoc_STRVAR(entrypos_doc,
              "entrypos(blob, backlog, posbuffer) -> int\n\n"
@@ -17,6 +20,7 @@ PyDoc_STRVAR(entrypos_doc,
 	     "- blob: a bytes-like object\n"
 	     "- backlog: a bytes-like object\n"
 	     "- posbuffer: a buffer able to store 6 positions");
+
 
 static PyObject *
 entrypos(PyObject * self, PyObject * args)
@@ -54,155 +58,98 @@ entrypos(PyObject * self, PyObject * args)
     posarray[i] = -1;
   }
   
-  /* header */
-  char * headerbeg_adr = (char *)memchr(blob_char + cur_offset, '@', blob.len - cur_offset - 1);
+  /* header */  
+  char * headerbeg_adr = (char *)memmem((void *)(blob_char + cur_offset), blob.len - cur_offset, (void *)("\n@"), 2);
   if (headerbeg_adr == NULL) {
-    headerbeg_adr = blob_char -1 ;    
-  }
-  posarray[POS_HEAD_BEG] = (Py_ssize_t) (headerbeg_adr - blob_char);
-
-  if ((posarray[POS_HEAD_BEG] > 0) && (blob_char[posarray[POS_HEAD_BEG] - 1] == '+')) {
-    PyErr_SetString(PyExc_Exception, "Lost sync' in input data.");
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
-    return NULL;
+    return PyLong_FromLong(POS_HEAD_BEG);
   }
-  if (posarray[POS_HEAD_BEG] == -1) {
-    PyBuffer_Release(&blob);
-    PyBuffer_Release(&posbuffer);
-    return PyLong_FromLong(0L);
-  }
+  posarray[POS_HEAD_BEG] = (Py_ssize_t) (headerbeg_adr - blob_char + 1);
 
   cur_offset = posarray[POS_HEAD_BEG]+1;
   char * headerend_adr = (char *)memchr(blob_char + cur_offset, '\n', blob.len - cur_offset - 1);
   if (headerend_adr == NULL) {
-    headerend_adr = blob_char - 1;
+    PyBuffer_Release(&blob);
+    PyBuffer_Release(&posbuffer);
+    return PyLong_FromLong(POS_HEAD_END);
   }
   posarray[POS_HEAD_END] = (Py_ssize_t) (headerend_adr - blob_char);
-  if (posarray[POS_HEAD_END] == -1) {
-    PyBuffer_Release(&blob);
-    PyBuffer_Release(&posbuffer);
-    return PyLong_FromLong(1L);
-  }
 
   /* sequence */
-  posarray[POS_SEQ_BEG] = posarray[POS_HEAD_END] + 1;
-  if (posarray[POS_SEQ_BEG] == (blob.len-1)) {
-    posarray[POS_SEQ_BEG] = -1;
+  if (posarray[POS_HEAD_END]+1 >= blob.len) {
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
-    return PyLong_FromLong(2L);
+    return PyLong_FromLong(POS_SEQ_BEG);
   }
+  posarray[POS_SEQ_BEG] = posarray[POS_HEAD_END] + 1;
+
   cur_offset = posarray[POS_SEQ_BEG]+1;
-  char * seqend_adr = (char *)memchr(blob_char + cur_offset, '\n', blob.len - cur_offset - 1);
+  char * seqend_adr = (char *)memmem((void *)(blob_char + cur_offset), blob.len - cur_offset, (void *)("\n+"), 2);
   if (seqend_adr == NULL) {
-    seqend_adr = blob_char - 1;
+    PyBuffer_Release(&blob);
+    PyBuffer_Release(&posbuffer);
+    return PyLong_FromLong(POS_SEQ_END);
   }
   posarray[POS_SEQ_END] = (Py_ssize_t) (seqend_adr - blob_char);
-  if (posarray[POS_SEQ_END] == (blob.len-1)) {
-    posarray[POS_SEQ_END] = -1;
-  }
-  if (posarray[POS_SEQ_END] == -1) {
+
+  /* Quality */
+  if (posarray[POS_SEQ_END]+2 >= blob.len) {
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
-    return PyLong_FromLong(2L);
+    return PyLong_FromLong(MISSING_QUALHEADER_END);
   }
-
-  if ((posarray[POS_SEQ_END] + 1) >= blob.len) {
+  cur_offset = posarray[POS_SEQ_END]+2;
+  char * qualheadend_adr = (char *)memchr(blob_char + cur_offset, '\n', blob.len - cur_offset - 1);
+  if (qualheadend_adr == NULL) {
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
-    return PyLong_FromLong(4L);
+    return PyLong_FromLong(MISSING_QUALHEADER_END);
   }
-
-  if (blob_char[posarray[POS_SEQ_END] + 1] != '+') {
-    /* multi-line FASTQ :/ */
-
-    /* //char errstr[80]; */
-    /* //PyOS_snprintf(errstr, (size_t)80, "", ...) */
-    /* /\* FIXME: clean this up *\/ */
-    /* printf("\noffset: %i\n", offset); */
-    /* printf("posarray[2]: %i\n", posarray[2]); */
-    /* printf("posarray[3]: %i\n", posarray[3]); */
-    /* printf("header:\n"); */
-    /* for(int i=posarray[0]; i<posarray[1]; i++)  */
-    /*   printf("%c",blob_char[i]); */
-    /* printf("\n---\n"); */
-    /* printf("sequence:\n"); */
-    /* for(int i=posarray[2]; i<posarray[3]; i++)  */
-    /*   printf("%c",blob_char[i]); */
-    /* printf("\n---\n"); */
-    /* /\* --- *\/ */
-    
-    PyErr_SetString(PyExc_ValueError, "Multi-line FASTQ. Bye.");
+  if (
+      ((qualheadend_adr - blob_char - posarray[POS_SEQ_END] - 1) > 1)
+      &&
+      ((qualheadend_adr - blob_char - posarray[POS_SEQ_END]) != (posarray[POS_HEAD_END] - posarray[POS_HEAD_BEG] + 1))
+      ) {
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
-    return NULL;
+    return PyLong_FromLong(INVALID);
   }
-
-  if ((posarray[POS_SEQ_END] + 2) >= blob.len) {
+  
+  Py_ssize_t qualbeg_i = qualheadend_adr - blob_char +1;
+  
+  if (qualbeg_i >= blob.len) {
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
-    return PyLong_FromLong(4L);
-  }
-
-  /* quality */
-
-  /* POS_SEQ_END corresponds to the end of the sequence, including the EOL character \n.
-   * If a FASTQ file withou quality header, there will only be '+\n' after this. 
-   */
-  if (blob_char[posarray[POS_SEQ_END] + 2] == '\n') {
-    posarray[POS_QUAL_BEG] = posarray[POS_SEQ_END]+3;
-    //        qualbeg_i = seqend_i+3
+    return PyLong_FromLong(POS_QUAL_BEG);
   } else {
-    /* The header can optionally be repeated in the separator for quality. */
-    Py_ssize_t lenheader = posarray[POS_HEAD_END] - posarray[POS_HEAD_BEG] + 1;
-    if ((posarray[POS_HEAD_END] + lenheader) >= blob.len) {
-      /* The buffer ends in the middle of an entry. */
-      PyBuffer_Release(&blob);
-      PyBuffer_Release(&posbuffer);
-      return PyLong_FromLong(4L);
-    } else if (blob_char[posarray[POS_SEQ_END] + lenheader] != '\n') {
-      PyErr_Format(
-		   PyExc_ValueError,
-		   "Invalid quality header - expected end of line"
-		   "(sequence header at blob[%lu:%lu], sequence at blob[%lu:%lu], "
-		   "quality header at blob[%lu:%lu]).",
-		   posarray[POS_HEAD_BEG]+1, posarray[POS_HEAD_END],
-		   posarray[POS_SEQ_BEG], posarray[POS_SEQ_END],
-		   posarray[POS_SEQ_END]+1, posarray[POS_SEQ_END]+lenheader
-		   );
-      PyBuffer_Release(&blob);
-      PyBuffer_Release(&posbuffer);
-      return NULL;
-    } else {
-      posarray[POS_QUAL_BEG] = posarray[POS_SEQ_END] + lenheader + 1;
-    } 
+    posarray[POS_QUAL_BEG] = qualbeg_i;
   }
 
-  if (posarray[POS_QUAL_BEG] >= blob.len) { // or posarray[3] == -1 ?
-    posarray[POS_QUAL_BEG] = -1;
+  Py_ssize_t qualend_i = (posarray[POS_QUAL_BEG] + posarray[POS_SEQ_END] - posarray[POS_HEAD_END] - 1);
+  if ((qualend_i+2) >= blob.len) {
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
-    return PyLong_FromLong(4L);
+    return PyLong_FromLong(POS_QUAL_END);
+  } else {
+    posarray[POS_QUAL_END] = qualend_i;
   }
 
-  posarray[POS_QUAL_END] = posarray[POS_QUAL_BEG] + (posarray[POS_SEQ_END] - posarray[POS_SEQ_BEG]);
-  if (posarray[POS_QUAL_END] >= blob.len) {
-    posarray[POS_QUAL_END] = -1;
+  if (!(
+	((qualend_i-posarray[POS_QUAL_BEG]) != (posarray[POS_SEQ_END]+1 - posarray[POS_HEAD_END]))
+      ||
+      ((! (qualend_i+2 >= blob.len)) && blob_char[qualend_i] == '\n' && blob_char[qualend_i+1] == '@')
+      ||
+      (blob.len - qualend_i)
+	)
+      ) {
     PyBuffer_Release(&blob);
     PyBuffer_Release(&posbuffer);
-    return PyLong_FromLong(5L);
-  } else if (blob_char[posarray[POS_QUAL_END]] != '\n') {
-    PyErr_Format(PyExc_ValueError, "The last character in the quality line is not a new line (blob[%lu:%lu]).",
-		 posarray[POS_QUAL_BEG], posarray[POS_QUAL_END]);
-    PyBuffer_Release(&blob);
-    PyBuffer_Release(&posbuffer);
-    return NULL;
+    return PyLong_FromLong(INVALID);
   }
-
   PyBuffer_Release(&blob);
   PyBuffer_Release(&posbuffer);
-  return PyLong_FromLong(6L);
+  return PyLong_FromLong(COMPLETE);
 }
 
 PyDoc_STRVAR(arrayadd_b_doc,

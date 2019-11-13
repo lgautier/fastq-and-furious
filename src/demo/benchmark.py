@@ -206,7 +206,7 @@ def run_speed(args):
         elif name == 'fastqandfurious (w/ C-ext and indexing)':
             import tempfile
             from fastqandfurious import fastqandfurious, _fastqandfurious
-            bufsize = int(5E4)
+            bufsize = args.faf_buffersize
             with tempfile.NamedTemporaryFile(mode='r+b') as fh_index:
                 with openfunc(args.filename, mode=mode) as fh:
                     print('  building index...', end='', flush=True)
@@ -258,7 +258,7 @@ def _ngs_plumbing_iter(fn, mode, buffering):
                 yield (i, e.header[1:], e.sequence)
 
 
-def _fastqandfurious_iter(fn, mode, buffering):
+def _fastqandfurious_iter(fn, mode, buffering, bufsize):
     from fastqandfurious import fastqandfurious
     bufsize = int(5E4)
     openfunc = _opener(fn)
@@ -269,13 +269,13 @@ def _fastqandfurious_iter(fn, mode, buffering):
                 yield (i, e.header, e.sequence)
 
 
-def _fastqandfurious_c_iter(fn, mode, buffering):
+def _fastqandfurious_c_iter(fn, mode, buffering, bufsize):
     from fastqandfurious import fastqandfurious, _fastqandfurious
-    bufsize = int(5E4)
     openfunc = _opener(fn)
     with open(fn, mode, buffering = buffering) as f:
         with openfunc(f) as fh: 
-            it = fastqandfurious.readfastq_iter(fh, bufsize, _entrypos=_fastqandfurious.entrypos)
+            it = fastqandfurious.readfastq_iter(fh, bufsize,
+                                                _entrypos=_fastqandfurious.entrypos)
             for i, e in enumerate(it):
                 yield (i, e.header, e.sequence)
 
@@ -287,13 +287,19 @@ def run_compare(args):
         if name == 'screed':
             res.append(_screed_iter(args.filename))
         elif name == 'biopython':
-            res.append(_biopython_iter(args.filename, 'rt', 2**16))
+            res.append(_biopython_iter(args.filename, 'rt',
+                                       args.io_buffersize))
         elif name == 'ngs_plumbing':
-            res.append(_ngs_plumbing_iter(args.filename, 'rb', 2**16))
+            res.append(_ngs_plumbing_iter(args.filename, 'rb',
+                                          args.io_buffersize))
         elif name == 'fastqandfurious':
-            res.append(_fastqandfurious_iter(args.filename, 'rb', 2**16))
+            res.append(_fastqandfurious_iter(args.filename, 'rb',
+                                             args.io_buffersize,
+                                             args.faf_buffersize))
         elif name == 'fastqandfurious_c':
-            res.append(_fastqandfurious_c_iter(args.filename, 'rb', 2**16))
+            res.append(_fastqandfurious_c_iter(args.filename, 'rb',
+                                               args.io_buffersize,
+                                               args.faf_buffersize))
         else:
             raise ValueError('Unknown parser name.')
     for i, (e1, e2) in enumerate(zip(*res), 0):
@@ -330,17 +336,30 @@ if __name__ == '__main__':
                               help='Test with adapter for "biopython" (unless --no-biopython specified)')
     parser_speed.add_argument('--io-buffersize',
                               type = int,
-                              default = int(50E3))
+                              default = int(50E3),
+                              help='IO buffer size when reading the file (default: %(default)s)')
+    parser_speed.add_argument('--faf-buffersize',
+                              type = int,
+                              default = int(50E3),
+                              help='Internal buffersize for fastqandfurious parsing (default: %(default)s)')
     parser_speed.add_argument('filename',
                               help='name of a FASTQ file (optionally gzip, bzip2, or lzma-compressed)')
     parser_speed.set_defaults(func=run_speed)
 
 
-    parser_compare = subparsers.add_parser('compare', help = "compare output")     
+    parser_compare = subparsers.add_parser('compare', help = "compare output")
     parser_compare.add_argument('parser',
                                 nargs = 2,
                                 choices = ('screed', 'biopython', 'ngs_plumbing', 'fastqandfurious', 'fastqandfurious_c'),
                                 help='Parser to use.')        
+    parser_compare.add_argument('--io-buffersize',
+                                type = int,
+                                default = int(50E3),
+                                help='IO buffer size when reading the file (default: %(default)s)')
+    parser_compare.add_argument('--faf-buffersize',
+                                type = int,
+                                default = int(50E3),
+                                help='Internal buffersize for fastqandfurious parsing (default: %(default)s)')
     
     parser_compare.add_argument('filename',
                               help='name of a FASTQ file (optionally gzip, bzip2, or lzma-compressed)')
