@@ -265,8 +265,8 @@ def _fastqandfurious_iter(fn, mode, buffering, bufsize):
     with open(fn, mode, buffering = buffering) as f:
         with openfunc(f) as fh: 
             it = fastqandfurious.readfastq_iter(fh, bufsize)
-            for i, e in enumerate(it):
-                yield (i, e.header, e.sequence)
+            for i, (header, sequence, quality) in enumerate(it):
+                yield (i, header, sequence)
 
 
 def _fastqandfurious_c_iter(fn, mode, buffering, bufsize):
@@ -276,8 +276,8 @@ def _fastqandfurious_c_iter(fn, mode, buffering, bufsize):
         with openfunc(f) as fh: 
             it = fastqandfurious.readfastq_iter(fh, bufsize,
                                                 _entrypos=_fastqandfurious.entrypos)
-            for i, e in enumerate(it):
-                yield (i, e.header, e.sequence)
+            for i, (header, sequence, quality) in enumerate(it):
+                yield (i, header, sequence)
 
 
 def run_compare(args):
