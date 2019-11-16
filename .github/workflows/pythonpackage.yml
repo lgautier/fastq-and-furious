@@ -33,4 +33,5 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
+        pip install biopython
         pytest --cov=fastqandfurious --cov-report=xml --cov-report=term tests.py
