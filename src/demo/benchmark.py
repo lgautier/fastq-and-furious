@@ -39,7 +39,7 @@ def benchmark_faf_c_index(fh, fh_index, bufsize: int = int(2**16)):
     from array import array
     total_seq = int(0)
     t0 = time.time()
-    fh = io.BufferedReader(fh, buffer_size = bufsize*8)
+    fh = io.BufferedReader(fh, buffer_size = bufsize)
     try:
         offset = 0
         entry_i = 0
