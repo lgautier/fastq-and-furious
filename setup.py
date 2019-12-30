@@ -1,5 +1,5 @@
 import sys
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 import os
 import warnings
 
@@ -38,8 +38,8 @@ faf_mod = Extension('%s._fastqandfurious' % PACKAGENAME,
                     #depends=['src/.h'],
                     #include_dirs=['src',],
                     language='c',
-                    extra_compile_args = extra_compile_args + \
-                    ['-O3', '-std=c99'])
+                    extra_compile_args=(extra_compile_args +
+                                        ['-O3', '-std=c99']))
 
 setup(
     name = PYPINAME,
@@ -54,6 +54,7 @@ setup(
                 PACKAGENAME + '.demo'],
     package_dir = {PACKAGENAME: 'src'},
     ext_modules = [faf_mod, ],
+    requires = ['setuptools'],
     extras_require = {
         'test' : ['pytest', ],
         'demo' : ['ngs_plumbing', 'screed', 'biopython']},
