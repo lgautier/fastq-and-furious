@@ -31,7 +31,7 @@ if sys.platform == 'darwin':
 elif sys.platform == 'linux':
     pass
 else:
-    raise ValueError('The platform %s is not supported.' % sys.platform)
+    warnings.warn('The platform %s is not supported. This may or may not work...' % sys.platform)
 
 faf_mod = Extension('%s._fastqandfurious' % PACKAGENAME,
                     sources=['src/_fastqandfurious.c', ],
