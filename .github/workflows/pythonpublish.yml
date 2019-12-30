@@ -2,7 +2,13 @@ name: Publish Python Package
 
 on:
   release:
-    types: [created, push, pull_request]
+    types: [created]
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
 
 jobs:
   deploy:
