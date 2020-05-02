@@ -9,7 +9,7 @@ was the parsing of FASTQ files).
 
 Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though, in which case an exception will be raised when parsing).
 
-[![speed_benchmark](throughput.png)](throughput.png)
+<img src="throughput.png" width=600>
 
 
 ## Installation
