@@ -50,6 +50,7 @@ def benchmark_faf_c_index(fh, fh_index, bufsize: int = int(2**16)):
                 posarray.fromfile(fh_index, 6)
             except EOFError as eofe:
                 break
+            fh.seek(posarray[0])
             buf = fh.read(posarray[-1]-offset+1)
             tmp = posarray[-1]
             _fastqandfurious.arrayadd_q(posarray, -offset)
@@ -186,8 +187,10 @@ def run_speed(args):
         lst.append(('biopython_fastqiterator', benchmark_biopython_faster, 'rt'))
         if args.with_biopython_adapter:
             lst.append(('biopython_adapter', benchmark_biopython_adapter, 'rb'))
+
     if not args.no_ngs_plumbing:
-        lst.append(('ngs_plumbing', benchmark_ngsplumbing, 'rb'))
+        lst.append(('ngs_plumbing', benchmark_ngsplumbing, 'rb'))            
+
     if not args.no_fastqandfurious_python:
         lst.append(('fastqandfurious', benchmark_faf, 'rb'))
     lst.append(('fastqandfurious (w/ C-ext)', benchmark_faf_c, 'rb'))
@@ -226,12 +229,10 @@ def run_speed(args):
         else:
             with open(args.filename, mode, buffering = args.io_buffersize) as f:
                 with openfunc(f) as fh:
-                    #try:
-                    if True:
+                    try:
                         func(fh)
-                    #except Exception as e:
-                    #    print('Error: %s' % str(e))
-
+                    except Exception as e:
+                        print('Error: %s' % str(e))
 
 def _screed_iter(fn):
     import screed
