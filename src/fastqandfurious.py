@@ -1,6 +1,6 @@
 from array import array
 from collections import namedtuple
-from enum import Enum
+import typing
 
 CHAR_AT = ord(b'@')
 CHAR_PLUS = ord(b'+')
@@ -8,6 +8,7 @@ CHAR_NEWLINE = ord(b'\n')
 ARRAY_INIT = array('q', [-1, ] * 6)
 
 Entry = namedtuple('Entry', 'header sequence quality')
+EntryType = typing.Tuple[bytes, bytes, typing.Optional[bytes]]
 
 INVALID = -1
 MISSING_SEQHEADER_BEGIN = 0
@@ -20,7 +21,7 @@ COMPLETE = 6
 MISSING_QUALHEADER_END = 7
 
 
-def read(fh, fbufsize):
+def read(fh: typing.BinaryIO, fbufsize: int) -> typing.Tuple[bytes, bool]:
     blob = fh.read(fbufsize)
     if len(blob) < fbufsize:
         eof = True
@@ -29,7 +30,7 @@ def read(fh, fbufsize):
     return (blob, eof)
 
 
-def _entrypos(buf, offset, posbuffer):
+def _entrypos(buf: bytes, offset: int, posbuffer: int) -> int:
 
     # Find header of FASTQ entry.
     headerbeg_i = buf.find(b'\n@', offset)
@@ -66,22 +67,24 @@ def _entrypos(buf, offset, posbuffer):
         return MISSING_QUAL_BEGIN
     else:
         posbuffer[MISSING_QUAL_BEGIN] = qualbeg_i
-    qualend_i = qualbeg_i + seqend_i - headerend_i - 1 
+    qualend_i = qualbeg_i + seqend_i - headerend_i - 1
     if (qualend_i+2) >= len(buf):
         return MISSING_QUAL_END
     else:
         posbuffer[MISSING_QUAL_END] = qualend_i
 
-    if not ((qualend_i-qualbeg_i != seqend_i+1 - headerend_i)
-            or
-            (not qualend_i+2 >= len(buf) and buf[qualend_i:qualend_i+2] != b'\n@')
-            or
-            (len(buf) - qualend_i)):
+    if not (
+        (qualend_i-qualbeg_i != seqend_i+1 - headerend_i)
+        or
+        (not qualend_i+2 >= len(buf) and buf[qualend_i:qualend_i+2] != b'\n@')
+        or
+        (len(buf) - qualend_i)
+    ):
         return INVALID
     return COMPLETE
 
 
-def entryfunc_namedtuple(buf, pos: array, globaloffset: int) -> Entry:
+def entryfunc_namedtuple(buf: bytes, pos: array, globaloffset: int) -> Entry:
     """
     Build a FASTQ entry as a namedtuple with attributes header, sequence,
     and quality.
@@ -96,7 +99,7 @@ def entryfunc_namedtuple(buf, pos: array, globaloffset: int) -> Entry:
     return Entry(header, sequence, quality)
 
 
-def entryfunc(buf, pos: array, globaloffset: int) -> tuple:
+def entryfunc(buf: bytes, pos: array, globaloffset: int) -> EntryType:
     """
     Build a FASTQ entry as a tuple (header, sequence, quality)
 
@@ -109,7 +112,7 @@ def entryfunc(buf, pos: array, globaloffset: int) -> tuple:
     return (header, sequence, quality)
 
 
-def entryfunc_abspos(buf, pos: array, globaloffset: int):
+def entryfunc_abspos(buf: bytes, pos: array, globaloffset: int) -> int:
     """
     Return the absolute positions of the entry in the stream
 
@@ -121,8 +124,12 @@ def entryfunc_abspos(buf, pos: array, globaloffset: int):
     return pos
 
 
-def readfastq_iter(fh, fbufsize: int, entryfunc=entryfunc, _entrypos=_entrypos,
-                   globaloffset: int = 0):
+def readfastq_iter(
+        fh: typing.BinaryIO, fbufsize: int,
+        entryfunc: typing.Callable[[bytes, array, int], tuple] = entryfunc,
+        _entrypos: typing.Callable[[bytes, array, int], int] = _entrypos,
+        globaloffset: int = 0
+) -> typing.Iterator[EntryType]:
     """
     The entries in the FASTQ files are parsed from chunks of size `fbufsize`),
     using the function `_entrypos` (that be changed as a parameter - an
@@ -181,7 +188,7 @@ def readfastq_iter(fh, fbufsize: int, entryfunc=entryfunc, _entrypos=_entrypos,
                     posbuffer[-1] = qualend_i
                     yield entryfunc(buf, posbuffer, globaloffset)
                     break
-                    
+
             elif status != INVALID:
                 raise ValueError('Incomplete entry at byte %i' %
                                  (globaloffset + offset))
