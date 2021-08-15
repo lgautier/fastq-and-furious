@@ -71,40 +71,23 @@ python -m fastqandfurious.demo.benchmark speed <FASTQ or FASTQ.gz or FASTQ.bz2 o
 Note that third-party library parsing FASTQ files are required in order to be able to run the full
 benchmark.
 
-With a gzip-compressed FASTQ file of 60MB (size compressed) with 273,639 entries,
+With a gzip-compressed FASTQ file of 146MB (size compressed) with
+1,562,120 entries,
 the benchmark is
 (the throughput is for the DNA sequences in the file - headers and quality strings
 are not counted):
 
 
-| parser | throughput | notes |
-|---|---|---|
-| screed | 23.27MB/s ||
-| biopython | 10.18MB/s ||
-| biopython_fastqiterator | 50.19MB/s | `Bio.SeqIO.QualityIO.FastqGeneralIterator` |
-| biopython_adapter | 25.5MB/s | fastqandfurious creating biopython objects |
-| ngs_plumbing | 32.98MB/s ||
-| fastqandfurious | 51.27MB/s | pure python |
-| fastqandfurious_c | 67.38MB/s | parsing individual entries with C extension |
-| fastqandfurious_c_index | 56.81MB/s | w/ index of entry positions |
 
+|                            parser | throughput | notes |
+|-----------------------------------|------------|-------|
+|                           screed  | 11.031983  |       |
+|                        biopython  |  6.824849  |       |
+|   biopython FastqGeneralIterator  | 34.473163  | `Bio.SeqIO.QualityIO.FastqGeneralIterator` |
+|                  fastqandfurious  | 31.964054  | pure python |
+|         fastqandfurious w/ c-ext  | 48.722005  | using C extension in the package |
+| fastqandfurious w/ c-ext + index  | 37.660727  | Like above and w/ index of entry positions |
 
-With a gzip-compressed FASTQ file of 700MB (size compressed) with 20,853,696 entries,
-the benchmark is
-(the throughput is for the DNA sequences in the file - headers and quality strings
-are not counted):
-
-
-| parser | throughput |
-|---|---|
-| screed | 3.63MB/s ||
-| biopython | 3.57MB/s ||
-| biopython_fastqiterator | 14.09MB/s ||
-| biopython_adapter | 4.10MB/s ||
-| ngs_plumbing | 5.77MB/s ||
-| fastqandfurious | 11.51MB/s ||
-| fastqandfurious_c | 21.88MB/s ||
-| fastqandfurious_c_index | 14.86MB/s ||
 
 
 ### Compare
