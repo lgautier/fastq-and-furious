@@ -214,8 +214,10 @@ data elements without having to parse them.
 
 Unfortunately, when doing so the benchmark does not show improvements over
 `fastqandfurious_c` but the approach opens the door for implementing masking strategies to avoid
-saving FASTQ after each filtering or read-trimming step. Excluding reads or trimming either end of the read
-could be done by only deleting rows or modifying the values in the table.
+saving a FASTQ file after each filtering or read-trimming step. Excluding reads or trimming either end of the read
+could be done by only deleting rows or modifying the values in a table of indices. Assuming that int64 is required for the indices, each entry (read) takes 6x8=48 bytes uncompressed.
+In comparison each 120 base read (sequence + quality scores) takes
+over 250 bytes uncompressed.
 
 If having the quality as a sequence of integer ajusted for the eventual offset of 33, there is a also a C utility:
 
