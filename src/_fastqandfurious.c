@@ -251,5 +251,15 @@ PyInit__fastqandfurious(void)
         return NULL;
     }
 
+    PyModule_AddObject(m, "INVALID", PyLong_FromLong(INVALID));
+    PyModule_AddObject(m, "POS_HEAD_BEG", PyLong_FromLong(POS_HEAD_BEG));
+    PyModule_AddObject(m, "POS_HEAD_END", PyLong_FromLong(POS_HEAD_END));
+    PyModule_AddObject(m, "POS_SEQ_BEG", PyLong_FromLong(POS_SEQ_BEG));
+    PyModule_AddObject(m, "POS_SEQ_END", PyLong_FromLong(POS_SEQ_END));
+    PyModule_AddObject(m, "POS_QUAL_BEG", PyLong_FromLong(POS_QUAL_BEG));
+    PyModule_AddObject(m, "POS_QUAL_END", PyLong_FromLong(POS_QUAL_END));
+    PyModule_AddObject(m, "COMPLETE", PyLong_FromLong(COMPLETE));
+    PyModule_AddObject(m, "MISSING_QUALHEADER_END", PyLong_FromLong(MISSING_QUALHEADER_END));
+
     return m;
 }
