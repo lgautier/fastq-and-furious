@@ -79,8 +79,8 @@ are not counted):
 
 
 
-|                            parser | throughput | notes |
-|-----------------------------------|------------|-------|
+|                            parser | throughput (MB/s) | notes |
+|-----------------------------------|-------------------|-------|
 |                           screed  | 11.031983  |       |
 |                        biopython  |  6.824849  |       |
 |   biopython FastqGeneralIterator  | 34.473163  | `Bio.SeqIO.QualityIO.FastqGeneralIterator` |
