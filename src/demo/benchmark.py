@@ -1,10 +1,13 @@
-import time
 import io
+import logging
+import os
+import time
 
 REFRESH_RATE=int(1E5)
+logger = logging.getLogger('fastqandfurious_benchmark')
+logger.setLevel(logging.INFO)
 
-
-def benchmark_faf(fh, bufsize: int = int(2**16)):
+def benchmark_faf(fh, name='fastqandfurious', bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious
     total_seq = int(0)
     t0 = time.time()
@@ -14,11 +17,14 @@ def benchmark_faf(fh, bufsize: int = int(2**16)):
         if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
-    print()
-    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+    t1 = time.time()
+    print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+    logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
+    logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
 
 
-def benchmark_faf_c(fh, bufsize: int = int(2**16)):
+def benchmark_faf_c(fh, name='fastqandfurious w/ c-ext',
+                    bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious, _fastqandfurious
     total_seq = int(0)
     t0 = time.time()
@@ -29,12 +35,17 @@ def benchmark_faf_c(fh, bufsize: int = int(2**16)):
             if i % REFRESH_RATE == 0:
                 t1 = time.time()
                 print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
-    finally:
-        print()
-        print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+        t1 = time.time()
+        print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+        logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
+        logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
+    except Exception as e:
+        print('Error with _fastqandfurious.entrypos().')
+        print(e)
 
 
-def benchmark_faf_c_index(fh, fh_index, bufsize: int = int(2**16)):
+def benchmark_faf_c_index(fh, fh_index, name='fastqandfurious w/ c-ext + index',
+                          bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious, _fastqandfurious
     from array import array
     total_seq = int(0)
@@ -63,12 +74,16 @@ def benchmark_faf_c_index(fh, fh_index, bufsize: int = int(2**16)):
             if entry_i % REFRESH_RATE == 0:
                 t1 = time.time()
                 print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
-    finally:
-        print()
-        print('%i entries in %.3f seconds.' % (entry_i+1, time.time()-t0))
+        t1 = time.time()
+        print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+        logger.info('"{}" entries/s {} {}'.format(name, entry_i+1, time.time()-t0))
+        logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
+    except Exception as e:
+        print('Error with _fastqandfurious.entrypos().')
+        print(e)
 
 
-def benchmark_ngsplumbing(fh):
+def benchmark_ngsplumbing(fh, name='ngs_plumbing'):
     import ngs_plumbing.fastq
     total_seq = int(0)
     t0 = time.time()
@@ -78,11 +93,13 @@ def benchmark_ngsplumbing(fh):
         if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
-    print()
-    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+    t1 = time.time()
+    print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+    logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
+    logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
 
 
-def benchmark_screed(fn):
+def benchmark_screed(fn, name='screed'):
     import screed
     total_seq = int(0)
     t0 = time.time()
@@ -92,11 +109,13 @@ def benchmark_screed(fn):
         if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
-    print()
-    print('%i entries' % (i+1))
+    t1 = time.time()
+    print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+    logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
+    logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
 
 
-def benchmark_biopython(fh):
+def benchmark_biopython(fh, name='biopython'):
     from Bio import SeqIO
     total_seq = int(0)
     t0 = time.time()
@@ -106,11 +125,13 @@ def benchmark_biopython(fh):
         if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
-    print()
-    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+    t1 = time.time()
+    print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+    logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
+    logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
 
 
-def benchmark_biopython_faster(fh):
+def benchmark_biopython_faster(fh, name='biopython FastqGeneralIterator'):
     from Bio.SeqIO.QualityIO import FastqGeneralIterator
     total_seq = int(0)
     t0 = time.time()
@@ -120,11 +141,13 @@ def benchmark_biopython_faster(fh):
         if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
-    print()
-    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+    t1 = time.time()
+    print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+    logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
+    logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
 
 
-def benchmark_biopython_adapter(fh):
+def benchmark_biopython_adapter(fh, name='biopython adapter'):
     total_seq = int(0)
     t0 = time.time()
 
@@ -151,8 +174,10 @@ def benchmark_biopython_adapter(fh):
         if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
-    print()
-    print('%i entries in %.3f seconds.' % (i+1, time.time()-t0))
+    t1 = time.time()
+    print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+    logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
+    logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
 
 
 def _opener(filename):
@@ -173,11 +198,21 @@ def run_speed(args):
 
     print('Running benchmark on file %s' % args.filename)
 
+    if args.output:
+        if os.path.exists(args.output):
+            raise ValueError('The file %s already exists.' % args.output)
+        fh = logging.FileHandler(args.output)
+        fh.setLevel(logging.INFO)
+        logger.addHandler(fh)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    logger.addHandler(ch)
+
     if not args.no_screed:
         print('---')
         print('screed:')
         try:
-            benchmark_screed(args.filename)
+            benchmark_screed(args.filename, name='screed')
         except Exception as e:
             print('Error: %s' % str(e))
 
@@ -316,9 +351,10 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
 
-    subparsers = parser.add_subparsers(help='sub-command help')
+    subparsers = parser.add_subparsers(dest='cmd', help='sub-command help')
+    subparsers.required = True
     
-    parser_speed = subparsers.add_parser('speed', help = "benchmark for speed")
+    parser_speed = subparsers.add_parser('speed', help="benchmark for speed")
     
     parser_speed.add_argument('--no-screed',
                               action='store_true',
@@ -337,12 +373,17 @@ if __name__ == '__main__':
                               help='Test with adapter for "biopython" (unless --no-biopython specified)')
     parser_speed.add_argument('--io-buffersize',
                               type = int,
-                              default = int(50E3),
+                              default=int(50E3),
                               help='IO buffer size when reading the file (default: %(default)s)')
     parser_speed.add_argument('--faf-buffersize',
                               type = int,
-                              default = int(50E3),
-                              help='Internal buffersize for fastqandfurious parsing (default: %(default)s)')
+                              default=int(50E3),
+                              help=('Internal buffersize for fastqandfurious parsing '
+                                    '(default: %(default)s)'))
+    parser_speed.add_argument('-o', '--output',
+                              default=None,
+                              help=('Optional output file to record benchmark results. '
+                                    'When not specified the output will go to stdout.'))
     parser_speed.add_argument('filename',
                               help='name of a FASTQ file (optionally gzip, bzip2, or lzma-compressed)')
     parser_speed.set_defaults(func=run_speed)
