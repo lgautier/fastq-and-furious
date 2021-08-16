@@ -78,17 +78,21 @@ the benchmark is
 are not counted):
 
 
-
 |                            parser | throughput (MB/s) | notes |
 |-----------------------------------|-------------------|-------|
-|                           screed  | 11.031983  |       |
-|                        biopython  |  6.824849  |       |
-|   biopython FastqGeneralIterator  | 34.473163  | `Bio.SeqIO.QualityIO.FastqGeneralIterator` |
-|                  fastqandfurious  | 31.964054  | pure python |
-|         fastqandfurious w/ c-ext  | 48.722005  | using C extension in the package |
-| fastqandfurious w/ c-ext + index  | 37.660727  | Like above and w/ index of entry positions |
+|                           screed  | 11.0  |       |
+|                        biopython  |  6.8  |       |
+|   biopython FastqGeneralIterator  | 34.5  | `Bio.SeqIO.QualityIO.FastqGeneralIterator` |
+|   pyfastx                         | 51.7  |       |
+|                  fastqandfurious  | 32.0  | pure python |
+|         fastqandfurious w/ c-ext  | 48.7  | using C extension in the package |
+| fastqandfurious w/ c-ext + index  | 37.7  | Like above and w/ index of entry positions |
 
 
+`fastqandfurious` with c-extension is 43% faster than Biopython's FastqGeneralIterator. The relatively recent `pyfastx`
+is only 6% faster than `fastqandfurious` while at the cost of pretty much all Python-level flexibility in `fastqandfurious`.
+For example, `fastqandfurious` can handle input from any Python `io` stream. This allows the use other compression algorithms other than gzip
+(e.g., LZO-compression), or to data not in files (e.g., network streams, pipes, or interprocess communications).
 
 ### Compare
 

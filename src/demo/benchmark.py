@@ -145,8 +145,8 @@ def benchmark_biopython_faster(fh, name='biopython FastqGeneralIterator'):
     print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
     logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
     logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
-
-
+        
+    
 def benchmark_biopython_adapter(fh, name='biopython adapter'):
     total_seq = int(0)
     t0 = time.time()
@@ -171,6 +171,23 @@ def benchmark_biopython_adapter(fh, name='biopython adapter'):
     it = fastqandfurious.readfastq_iter(fh, bufsize, biopython_entryfunc)
     for i, e in enumerate(it):
         total_seq += len(e.seq)
+        if i % REFRESH_RATE == 0:
+            t1 = time.time()
+            print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
+    t1 = time.time()
+    print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)))
+    logger.info('"{}" entries/s {} {}'.format(name, i+1, time.time()-t0))
+    logger.info('"{}" MB/s {} {}'.format(name, total_seq/(1E6)/(t1-t0), ''))
+
+
+def benchmark_pyfastx(fn, name='pyfastx'):
+    import pyfastx
+    total_seq = int(0)
+    t0 = time.time()
+    # pyfastx does not take file handles.
+    fq = pyfastx.Fastx(fn)
+    for i, (readname,seq,qual,comment) in enumerate(fq):
+        total_seq += len(seq)
         if i % REFRESH_RATE == 0:
             t1 = time.time()
             print('\r%.2fMB/s' % (total_seq/(1E6)/(t1-t0)), end='', flush=True)
@@ -215,7 +232,14 @@ def run_speed(args):
             benchmark_screed(args.filename, name='screed')
         except Exception as e:
             print('Error: %s' % str(e))
-
+    if not args.no_pyfastx:
+        print('---')
+        print('pyfastx:')
+        try:
+            benchmark_pyfastx(args.filename, name='pyfastx')
+        except Exception as e:
+            print('Error: %s' % str(e))
+            
     lst = list()
     if not args.no_biopython:
         lst.append(('biopython', benchmark_biopython, 'rt'))
@@ -316,12 +340,22 @@ def _fastqandfurious_c_iter(fn, mode, buffering, bufsize):
                 yield (i, header, sequence)
 
 
+def _pyfastx_iter(fn, mode, buffering, bufsize):
+    import pyfastx
+    with pyfastx.Fastx(fn) as f:
+        for (i, (name, sequence, quality, comment)) in enumerate(f):
+             yield(i, name, sequence)
+
+
 def run_compare(args):
     res = list()
 
     for name in args.parser:
         if name == 'screed':
             res.append(_screed_iter(args.filename))
+        elif name == 'pyfastx':
+            res.append(_pyfastx_iter(args.filename, None,
+                                     None))
         elif name == 'biopython':
             res.append(_biopython_iter(args.filename, 'rt',
                                        args.io_buffersize))
@@ -359,6 +393,9 @@ if __name__ == '__main__':
     parser_speed.add_argument('--no-screed',
                               action='store_true',
                               help='Do not test "screed"')        
+    parser_speed.add_argument('--no-pyfastx',
+                              action='store_true',
+                              help='Do not test "pyfastx"')        
     parser_speed.add_argument('--no-ngs_plumbing',
                               action='store_true',
                               help='Do not test "ngs_plumbing"')        
@@ -373,7 +410,7 @@ if __name__ == '__main__':
                               help='Test with adapter for "biopython" (unless --no-biopython specified)')
     parser_speed.add_argument('--io-buffersize',
                               type = int,
-                              default=int(50E3),
+                              default=int(75E3),
                               help='IO buffer size when reading the file (default: %(default)s)')
     parser_speed.add_argument('--faf-buffersize',
                               type = int,
