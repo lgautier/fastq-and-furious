@@ -1,24 +1,25 @@
 from array import array
 from collections import namedtuple
+import os
 import typing
 
-CHAR_AT = ord(b'@')
-CHAR_PLUS = ord(b'+')
-CHAR_NEWLINE = ord(b'\n')
-ARRAY_INIT = array('q', [-1, ] * 6)
+CHAR_AT: int = ord(b'@')
+CHAR_PLUS: int = ord(b'+')
+CHAR_NEWLINE: int = ord(b'\n')
+ARRAY_INIT: int = array('q', [-1, ] * 6)
 
 Entry = namedtuple('Entry', 'header sequence quality')
 EntryType = typing.Tuple[bytes, bytes, typing.Optional[bytes]]
 
-INVALID = -1
-MISSING_SEQHEADER_BEGIN = 0
-MISSING_SEQHEADER_END = 1
-MISSING_SEQ_BEG = 2
-MISSING_SEQ_END = 3
-MISSING_QUAL_BEGIN = 4
-MISSING_QUAL_END = 5
-COMPLETE = 6
-MISSING_QUALHEADER_END = 7
+INVALID: int = -1
+MISSING_SEQHEADER_BEGIN: int = 0
+MISSING_SEQHEADER_END: int = 1
+MISSING_SEQ_BEG: int = 2
+MISSING_SEQ_END: int = 3
+MISSING_QUAL_BEGIN: int = 4
+MISSING_QUAL_END: int = 5
+COMPLETE: int = 6
+MISSING_QUALHEADER_END: int = 7
 
 
 def read(fh: typing.BinaryIO, fbufsize: int) -> typing.Tuple[bytes, bool]:
@@ -30,15 +31,15 @@ def read(fh: typing.BinaryIO, fbufsize: int) -> typing.Tuple[bytes, bool]:
     return (blob, eof)
 
 
-def _entrypos(buf: bytes, offset: int, posbuffer: int) -> int:
+def entrypos(buf: bytes, offset: int, posbuffer: int) -> int:
 
     # Find header of FASTQ entry.
-    headerbeg_i = buf.find(b'\n@', offset)
+    headerbeg_i: int = buf.find(b'\n@', offset)
     if headerbeg_i == -1:
         return MISSING_SEQHEADER_BEGIN
     else:
         posbuffer[MISSING_SEQHEADER_BEGIN] = headerbeg_i+1
-    headerend_i = buf.find(b'\n', headerbeg_i+2)
+    headerend_i: int = buf.find(b'\n', headerbeg_i+2)
     if headerend_i == -1:
         return MISSING_SEQHEADER_END
     else:
@@ -48,26 +49,26 @@ def _entrypos(buf: bytes, offset: int, posbuffer: int) -> int:
     if headerend_i+1 >= len(buf):
         return MISSING_SEQ_BEG
     posbuffer[MISSING_SEQ_BEG] = headerend_i+1
-    seqend_i = buf.find(b'\n+', headerend_i+1)
+    seqend_i: int = buf.find(b'\n+', headerend_i+1)
     if seqend_i == -1:
         return MISSING_SEQ_END
     else:
         posbuffer[MISSING_SEQ_END] = seqend_i
 
     # Quality.
-    qualheadend_i = buf.find(b'\n', seqend_i+2)
+    qualheadend_i: int = buf.find(b'\n', seqend_i+2)
     if qualheadend_i == -1:
         return MISSING_QUALHEADER_END
     elif ((qualheadend_i - seqend_i - 1) > 1
           and
           ((qualheadend_i - seqend_i) != (headerend_i - headerbeg_i))):
         return INVALID
-    qualbeg_i = qualheadend_i + 1
+    qualbeg_i: int = qualheadend_i + 1
     if qualbeg_i >= len(buf):
         return MISSING_QUAL_BEGIN
     else:
         posbuffer[MISSING_QUAL_BEGIN] = qualbeg_i
-    qualend_i = qualbeg_i + seqend_i - headerend_i - 1
+    qualend_i: int = qualbeg_i + seqend_i - headerend_i - 1
     if (qualend_i+2) >= len(buf):
         return MISSING_QUAL_END
     else:
@@ -127,25 +128,28 @@ def entryfunc_abspos(buf: bytes, pos: array, globaloffset: int) -> int:
 def readfastq_iter(
         fh: typing.BinaryIO, fbufsize: int,
         entryfunc: typing.Callable[[bytes, array, int], tuple] = entryfunc,
-        _entrypos: typing.Callable[[bytes, array, int], int] = _entrypos,
+        entrypos: typing.Callable[[bytes, array, int], int] = entrypos,
         globaloffset: int = 0
 ) -> typing.Iterator[EntryType]:
     """
-    The entries in the FASTQ files are parsed from chunks of size `fbufsize`),
-    using the function `_entrypos` (that be changed as a parameter - an
-    faster implementation in C iblob[(posbuffer[0]+1):posbuffer[1]]s in
-    `fastqandfurious._fastqandfurious.entrypos`).
+    Entries in the FASTQ files are parsed from chunks of size `fbufsize`),
+    using the function passed in parameter `entrypos`. A
+    faster alternative to the default implementated in C is in
+    `fastqandfurious._fastqandfurious.entrypos`.
 
     With the current implementation, `fbufsize` must be large enough to contain
-    the largest entry in the file. For example, is the longest read is 250bp
+    the largest entry in the file. For example, if the longest read is 250bp
     long, and the identifier is 25-char long, the minimum buffer size will be
-    about 525. Aiming for that minimum is not advised, as some of the speed
-    comes for working on buffers, and larger buffers able to contain many
-    entries will lead to better performances (with the cave at that very large
-    buffer might be counter-productive as the iterator will need to read data
+    about 525. Aiming for that minimum is not advised though, as some of the speed
+    comes for minimizing data copying through the use of buffers. Larger buffers
+    are able to contain many entries which will lead to better performances
+    (with the cave at that very large
+    buffer might be counter-productive if end-to-end entry-level interations is
+    wanted. The iterator will need to read data
     to fill the buffer (or all data, whichever is the smallest) before starting
-    to yield entries. A value between 20,000 and 50,000 (20KB-50KB) gives
-    pretty good results on this end.
+    to yield entries. A value between 20,000 and 50,000 (20KB-50KB) empircally gives
+    pretty good results for short-read sequencing on this end. If the FASTQ file
+    contains PacBio reads bumping this to 200,000 or more (200KB or more) is advised. 
 
     `entryfunc` can be any function taking a bytes-like objects and an
     array of position (array of signed integers of length 6:
@@ -157,14 +161,14 @@ def readfastq_iter(
     - fbufsize: buffer size (see note above)
     - entryfunc: a function to build an entry object (taking a bytes-like
       object and an array of positions)
-    - _entrypos: a function to find positions of entries
+    - entrypos: a function to find positions of entries
 
     Returns an iterator over entries in the FASTQ file.
     """
 
     posbuffer = array('q', [-1, ] * 6)
-    globaloffset = -1
-    offset = 0
+    globaloffset: int = -1
+    offset: int = 0
     buf, eof = read(fh, fbufsize)
     buf = b'\n' + buf
     # TODO: Would using a memoryview on the read buffer lead to further
@@ -173,7 +177,7 @@ def readfastq_iter(
     # fh.readinto(fbuf)
     # mblob = memoryview(fbuf)
     while True:
-        status = _entrypos(buf, offset, posbuffer)
+        status = entrypos(buf, offset, posbuffer)
         if status == COMPLETE:
             offset = posbuffer[-1]-1
             yield entryfunc(buf, posbuffer, globaloffset)
@@ -201,3 +205,27 @@ def readfastq_iter(
             buf = buf[offset:] + tmp_buf
             del(tmp_buf)
             offset = 0
+
+
+FORMAT_OPENERS: typing.Dict[str, typing.Tuple[str, str, list]] = {
+    'gz': ('gzip', 'open', list()),
+    'gzip': ('gzip', 'open', list()),
+    'bz2': ('bz2', 'open', list()),
+    'lzma': ('lzma', 'open', list())
+}
+
+
+def automagic_open(filename):
+    maybe_ext = filename.rsplit(os.path.extsep, maxsplit=1)
+    if len(maybe_ext) == 1:
+        # No extension
+        ext = None
+    else:
+        ext = maybe_ext[-1]
+    try:
+        modulename, funcname, args = FORMAT_OPENERS[ext]
+    except KeyError:
+        modulename, funcname, args = ('io', 'open', ('rb', ))
+    module = importlib.importmodule(modulename)
+    opener = getattr(module, funcname)
+    return opener(filename, *args)

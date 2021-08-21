@@ -1,0 +1,73 @@
+name: Pages
+
+on:
+  push:
+    branches-ignore:
+      - 'gh-pages'
+
+env:
+  R-VERSION: "4.0"
+
+jobs:
+  job_1:
+    name: sphinx_html
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install Python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install pandoc
+          python -m pip install --upgrade pip
+          python setup.py install
+          pip install -r doc/requirements.txt
+      - name: Build HTML doc
+        run: |
+          cd doc
+          make html
+          git rev-parse --short HEAD > _build/html/.revforbuild
+      - name: Archive documentation
+        uses: actions/upload-artifact@v2
+        with:
+          name: html-doc
+          path: doc/_build/html
+  job_2:
+    name: commit_ghpages
+    runs-on: ubuntu-latest
+    needs: job_1
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+          fetch-depth: 2
+      - name: download HTML build
+        uses: actions/download-artifact@v2
+        with:
+          name: html-doc
+          path: html-doc
+      - name: Prepare git for commit
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      - name: Add HTML build
+        run: |
+          DOCPATH="docs/version/${GITHUB_REF##*/}/html"
+          echo "Doc path: ${DOCPATH}"
+          git rm -r --ignore-unmatch "${DOCPATH}"
+          echo "Creating docpath."
+          mkdir -p "${DOCPATH}"
+          mv html-doc/.revforbuild .
+          mv -T html-doc "${DOCPATH}"
+          echo "Adding docpath to local repos"
+          git add "${DOCPATH}"
+          if [ -z $(git status -uno --porcelain) ]; then
+            echo "No changes to be committed."  
+          else
+            git commit -m "HTML Sphinx build for $(cat .revforbuild)" "${DOCPATH}";
+            git push;
+          fi
