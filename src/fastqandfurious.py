@@ -1,5 +1,6 @@
 from array import array
 from collections import namedtuple
+import importlib
 import os
 import typing
 
@@ -140,16 +141,17 @@ def readfastq_iter(
     With the current implementation, `fbufsize` must be large enough to contain
     the largest entry in the file. For example, if the longest read is 250bp
     long, and the identifier is 25-char long, the minimum buffer size will be
-    about 525. Aiming for that minimum is not advised though, as some of the speed
-    comes for minimizing data copying through the use of buffers. Larger buffers
-    are able to contain many entries which will lead to better performances
-    (with the cave at that very large
+    about 525. Aiming for that minimum is not advised though, as some of the
+    speed comes for minimizing data copying through the use of buffers. Larger
+    buffers are able to contain many entries which will lead to better
+    performances (with the cave at that very large
     buffer might be counter-productive if end-to-end entry-level interations is
     wanted. The iterator will need to read data
     to fill the buffer (or all data, whichever is the smallest) before starting
-    to yield entries. A value between 20,000 and 50,000 (20KB-50KB) empircally gives
-    pretty good results for short-read sequencing on this end. If the FASTQ file
-    contains PacBio reads bumping this to 200,000 or more (200KB or more) is advised. 
+    to yield entries. A value between 20,000 and 50,000 (20KB-50KB) empircally
+    gives pretty good results for short-read sequencing on this end. If the
+    FASTQ file contains PacBio reads bumping this to 200,000 or more (200KB or
+    more) is advised.
 
     `entryfunc` can be any function taking a bytes-like objects and an
     array of position (array of signed integers of length 6:
