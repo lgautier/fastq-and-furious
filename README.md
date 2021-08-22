@@ -12,3 +12,4 @@ Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though
 <img src="throughput.svg">
 
 
+[Project page](https://lgautier.github.io/fastq-and-furious/)

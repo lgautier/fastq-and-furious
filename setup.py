@@ -15,13 +15,14 @@ CLASSIFIERS = [
     'Operating System :: POSIX :: Linux',
     'Programming Language :: C++',
     'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
     'Topic :: Scientific/Engineering',
 ]
 
-if tuple(sys.version_info[:2]) < (3, 5):
-    print('Error: Python >= 3.5 is *required*.')
+if tuple(sys.version_info[:2]) < (3, 7):
+    print('Error: Python >= 3.7 is *required*.')
     sys.exit(1)
     
 
@@ -31,7 +32,8 @@ if sys.platform == 'darwin':
 elif sys.platform == 'linux':
     pass
 else:
-    warnings.warn('The platform %s is not supported. This may or may not work...' % sys.platform)
+    warnings.warn('The platform %s is not supported. '
+                  'This may or may not work...' % sys.platform)
 
 faf_mod = Extension('%s._fastqandfurious' % PACKAGENAME,
                     sources=['src/_fastqandfurious.c', ],
@@ -48,7 +50,7 @@ setup(
     license = 'MIT',
     author = 'Laurent Gautier',
     author_email = 'lgautier@gmail.com',
-    url = 'https://github.com/lgautier/fastq-and-furious',
+    url = 'https://lgautier.github.io/fastq-and-furious/',
     packages = [PACKAGENAME,
                 #PACKAGENAME + '.tests',
                 PACKAGENAME + '.demo'],
@@ -57,7 +59,7 @@ setup(
     requires = ['setuptools'],
     extras_require = {
         'test' : ['pytest', ],
-        'demo' : ['ngs_plumbing', 'screed', 'biopython']},
+        'demo' : ['ngs_plumbing', 'screed', 'biopython', 'pyfastx']},
     classifiers = CLASSIFIERS)
 
 
