@@ -9,7 +9,6 @@ was the parsing of FASTQ files).
 
 Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though, in which case an exception will be raised when parsing).
 
-<img src="throughput.svg">
-
-
 [Project page](https://lgautier.github.io/fastq-and-furious/)
+
+<img src="throughput.svg">
