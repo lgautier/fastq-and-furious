@@ -1,0 +1,181 @@
+
+
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Performance &#8212; fastq-and-furious 0.3.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="User guide" href="user-guide.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="user-guide.html" title="User guide"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fastq-and-furious 0.3.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Performance</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="performance">
+<h1>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h1>
+<p>There is a little utility to try it out on your own systems and files (there are options,
+available with the flag <cite>–help</cite>).</p>
+<p>The two mode are “speed” and “compare”, the former benchmarking the speed of different
+parsers and the second comparing the output of different parsers (not so good to be
+fast if not correct).</p>
+<section id="speed">
+<h2>Speed<a class="headerlink" href="#speed" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m fastqandfurious.demo.benchmark speed &lt;FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file&gt;
+</pre></div>
+</div>
+<p>Note that third-party library parsing FASTQ files are required in order to be able to run the full
+benchmark.</p>
+<p>With a gzip-compressed FASTQ file of 146MB (size compressed) with
+1,562,120 entries,
+the benchmark is
+(the throughput is for the DNA sequences in the file - headers and quality strings
+are not counted):</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 20%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parser</p></th>
+<th class="head"><p>throughput (MB/s)</p></th>
+<th class="head"><p>notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>screed</p></td>
+<td><p>11.0</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>biopython</p></td>
+<td><p>6.8</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>biopython FastqGeneralIterator</p></td>
+<td><p>34.5</p></td>
+<td><p><cite>Bio.SeqIO.QualityIO.FastqGeneralIterator</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p>pyfastx</p></td>
+<td><p>51.7</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>fastqandfurious</p></td>
+<td><p>32.0</p></td>
+<td><p>pure python</p></td>
+</tr>
+<tr class="row-odd"><td><p>fastqandfurious w/ c-ext</p></td>
+<td><p>48.7</p></td>
+<td><p>using C extension in the package</p></td>
+</tr>
+<tr class="row-even"><td><p>fastqandfurious w/ c-ext + index</p></td>
+<td><p>37.7</p></td>
+<td><p>Like above and w/ index of entry positions</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>fastqandfurious</cite> with c-extension is 43% faster than Biopython’s FastqGeneralIterator. The relatively recent <cite>pyfastx</cite>
+is only 6% faster than <cite>fastqandfurious</cite> while at the cost of pretty much all Python-level flexibility in <cite>fastqandfurious</cite>.
+For example, <cite>fastqandfurious</cite> can handle input from any Python <cite>io</cite> stream. This allows the use other compression algorithms other than gzip
+(e.g., LZO-compression), or to data not in files (e.g., network streams, pipes, or interprocess communications).</p>
+</section>
+<section id="compare">
+<h2>Compare<a class="headerlink" href="#compare" title="Permalink to this headline">¶</a></h2>
+<p>To compare the output of two parsers, for example <cite>biopython</cite> and our parser:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m fastqandfurious.demo.benchmark compare biopython fastqandfurious <span class="se">\</span>
+  &lt;FASTQ <span class="p">|</span> FASTQ.gz <span class="p">|</span> FASTQ.bz2 <span class="p">|</span> FASTQ.lzma&gt;
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Performance</a><ul>
+<li><a class="reference internal" href="#speed">Speed</a></li>
+<li><a class="reference internal" href="#compare">Compare</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="user-guide.html"
+                        title="previous chapter">User guide</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/performance.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="user-guide.html" title="User guide"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fastq-and-furious 0.3.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Performance</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, L. Gautier.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+    </div>
+  </body>
+</html>
