@@ -1,0 +1,29 @@
+{% extends "!layout.html" %}
+  {% block footer %} {{ super() }}
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    div.related, div.document {
+	background-color: #1f8dd6;
+	color: #ffffff;
+    }
+    div.related a, div.document a {
+	color: #fabf9c;
+    }
+
+    div.document div.body,
+    div.body h1, div.body h2, div.body h3,
+    div.body h4, div.body h5, div.body h6{
+	background-color: #ececec;
+    }
+
+    div.body h1 {
+	border-top-color: #1f8dd6;
+    }
+ 
+    div.document div.body a {
+	color: #ff5e00;
+    }
+
+  </style>
+{% endblock %}
