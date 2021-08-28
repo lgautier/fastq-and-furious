@@ -86,7 +86,8 @@ For example, parsing FASTQ data in a gzip-compressed file works the same way:</p
         <span class="k">pass</span>
 </pre></div>
 </div>
-<p>Writing an extension automagic reader name-based reader:</p>
+<p>This allowed to implement very simply an automagic file open that uses file extensions
+to guess the file format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gzip</span>
 <span class="kn">import</span> <span class="nn">fastqandfurious.fastqandfurious</span> <span class="k">as</span> <span class="nn">fqf</span>
 <span class="kn">from</span> <span class="nn">fastqandfurious.fastqandfurious</span> <span class="kn">import</span> <span class="n">entryfunc</span>
@@ -100,45 +101,40 @@ For example, parsing FASTQ data in a gzip-compressed file works the same way:</p
             <span class="k">pass</span>
 </pre></div>
 </div>
+<p>Extension names for other compression schemes can be added. The documentation for
+the function is:</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="fastqandfurious.fastqandfurious.readfastq_iter">
-<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">readfastq_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fh</span></em>, <em class="sig-param"><span class="pre">fbufsize</span></em>, <em class="sig-param"><span class="pre">entryfunc=&lt;function</span> <span class="pre">entryfunc&gt;</span></em>, <em class="sig-param"><span class="pre">entrypos=&lt;function</span> <span class="pre">entrypos&gt;</span></em>, <em class="sig-param"><span class="pre">globaloffset=0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Entries in the FASTQ files are parsed from chunks of size <cite>fbufsize</cite>),
-using the function passed in parameter <cite>entrypos</cite>. A
-faster alternative to the default implementated in C is in
-<cite>fastqandfurious._fastqandfurious.entrypos</cite>.</p>
-<p>With the current implementation, <cite>fbufsize</cite> must be large enough to contain
-the largest entry in the file. For example, if the longest read is 250bp
-long, and the identifier is 25-char long, the minimum buffer size will be
-about 525. Aiming for that minimum is not advised though, as some of the
-speed comes for minimizing data copying through the use of buffers. Larger
-buffers are able to contain many entries which will lead to better
-performances (with the cave at that very large
-buffer might be counter-productive if end-to-end entry-level interations is
-wanted. The iterator will need to read data
-to fill the buffer (or all data, whichever is the smallest) before starting
-to yield entries. A value between 20,000 and 50,000 (20KB-50KB) empircally
-gives pretty good results for short-read sequencing on this end. If the
-FASTQ file contains PacBio reads bumping this to 200,000 or more (200KB or
-more) is advised.</p>
-<p><cite>entryfunc</cite> can be any function taking a bytes-like objects and an
-array of position (array of signed integers of length 6:
-header (begin, end), sequence (begin, end), and quality (begin, end).
-This allows plugging this parser into existing code bases / frameworks
-very easily.</p>
-<ul class="simple">
-<li><p>fh: file-like object or stream (just needs a method <cite>read</cite>)</p></li>
-<li><p>fbufsize: buffer size (see note above)</p></li>
-<li><p>entryfunc: a function to build an entry object (taking a bytes-like
-object and an array of positions)</p></li>
-<li><p>entrypos: a function to find positions of entries</p></li>
-</ul>
-<p>Returns an iterator over entries in the FASTQ file.</p>
+<dt class="sig sig-object py" id="fastqandfurious.fastqandfurious.automagic_open">
+<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">automagic_open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.automagic_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automagic file opener.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]]]</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – A path to a file (presumably a FASTQ file),
+compressed or not.</p></li>
+<li><p><strong>openers</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]]]) – A mapping between extension names and
+openers defined as triplets (module name, class/function
+in the module, and tuple with unnamed parameters for the class/function).
+If <cite>None</cite> the module-level object <cite>FORMAT_OPENERS</cite> is used.
+See details below.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">BinaryIO</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A stream object returned by the opener found to
+match <cite>filename</cite>.</p>
 </dd>
 </dl>
+<p>The automagic opener will guess the file type from this
+extension. For example, a filename <cite>‘foo/bar.fq.gz’</cite> will be
+guess to be a gzip-compressed (FASTQ) file. <cite>‘foo/bar.fq’</cite>
+an uncompressed file. <cite>‘foo/bar.bar.bz2’</cite> a bz2-compressed
+file.</p>
+<p>Extension names for compression schemes present in Python’s
+standard lib should be understood by default (gzip, lzma, bz2)
+but it is easy to add additional compression schemes.</p>
 </dd></dl>
 
 </section>
@@ -162,6 +158,61 @@ the code and second with the C-extension:</p>
             <span class="c1"># do something</span>
             <span class="k">pass</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The function <a class="reference internal" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="fastqandfurious.fastqandfurious.readfastq_iter"><code class="xref py py-func docutils literal notranslate"><span class="pre">fastqandfurious.fastqandfurious.readfastq_iter()</span></code></a> is
+the workhorse. It is implemented in Python, but we can achieve speeds about identical to
+the fastest parsers by using buffering and parsing
+functions able to work with slices of FASTQ files (the buffers). However we keep a lot
+flexibility with this approach, unlike a monolithic C-extensions found elsewhere.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fastqandfurious.fastqandfurious.readfastq_iter">
+<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">readfastq_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fh</span></em>, <em class="sig-param"><span class="pre">fbufsize</span></em>, <em class="sig-param"><span class="pre">entryfunc=&lt;function</span> <span class="pre">entryfunc&gt;</span></em>, <em class="sig-param"><span class="pre">entrypos=&lt;function</span> <span class="pre">entrypos&gt;</span></em>, <em class="sig-param"><span class="pre">globaloffset=0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate through entries in a FASTQ stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fh</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">BinaryIO</span></code>) – file-like object or stream (just needs a method <cite>read</cite>)</p></li>
+<li><p><strong>fbufsize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – buffer size (see note above)</p></li>
+<li><p><strong>entryfunc</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>]) – a function to build an entry object (taking a bytes-like
+object and an array of positions)</p></li>
+<li><p><strong>entrypos</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – a function to find positions of entries</p></li>
+<li><p><strong>globaloffset</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An iterator over entries in the FASTQ file.</p>
+</dd>
+</dl>
+<p>Entries in the FASTQ files are parsed from chunks of size <cite>fbufsize</cite>),
+using the function passed in parameter <cite>entrypos</cite>. A
+faster alternative to the default implementated in C is in
+<cite>fastqandfurious._fastqandfurious.entrypos</cite>.</p>
+<p>With the current implementation, <cite>fbufsize</cite> must be large enough to contain
+the largest entry in the file. For example, if the longest read is 250bp
+long, and the identifier is 25-char long, the minimum buffer size will be
+about 525. Aiming for that minimum is not advised though, as some of the
+speed comes for minimizing data copying through the use of buffers. Larger
+buffers are able to contain many entries which will lead to better
+performances (with the cave at that very large
+buffer might be counter-productive if end-to-end entry-level interations is
+wanted. The iterator will need to read data
+to fill the buffer (or all data, whichever is the smallest) before starting
+to yield entries. A value between 20,000 and 50,000 (20KB-50KB) empircally
+gives pretty good results for short-read sequencing on this end. If the
+FASTQ file contains PacBio reads bumping this to 200,000 or more (200KB or
+more) is advised.</p>
+<p><cite>entryfunc</cite> can be any function taking a bytes-like objects and an
+array of position (array of signed integers of length 6:
+header (begin, end), sequence (begin, end), and quality (begin, end).
+This allows plugging this parser into existing code bases / frameworks
+very easily.</p>
+</dd></dl>
+
 </div>
 </section>
 <section id="use-with-other-libraries">
