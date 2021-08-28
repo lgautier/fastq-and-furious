@@ -132,7 +132,16 @@ def readfastq_iter(
         entrypos: typing.Callable[[bytes, array, int], int] = entrypos,
         globaloffset: int = 0
 ) -> typing.Iterator[EntryType]:
-    """
+    """Iterate through entries in a FASTQ stream.
+
+    :param fh: file-like object or stream (just needs a method `read`)
+    :param fbufsize: buffer size (see note above)
+    :param entryfunc: a function to build an entry object (taking a bytes-like
+      object and an array of positions)
+    :param entrypos: a function to find positions of entries
+
+    :returns: An iterator over entries in the FASTQ file.
+
     Entries in the FASTQ files are parsed from chunks of size `fbufsize`),
     using the function passed in parameter `entrypos`. A
     faster alternative to the default implementated in C is in
@@ -158,14 +167,6 @@ def readfastq_iter(
     header (begin, end), sequence (begin, end), and quality (begin, end).
     This allows plugging this parser into existing code bases / frameworks
     very easily.
-
-    - fh: file-like object or stream (just needs a method `read`)
-    - fbufsize: buffer size (see note above)
-    - entryfunc: a function to build an entry object (taking a bytes-like
-      object and an array of positions)
-    - entrypos: a function to find positions of entries
-
-    Returns an iterator over entries in the FASTQ file.
     """
 
     posbuffer = array('q', [-1, ] * 6)
@@ -217,7 +218,32 @@ FORMAT_OPENERS: typing.Dict[str, typing.Tuple[str, str, list]] = {
 }
 
 
-def automagic_open(filename):
+def automagic_open(
+        filename,
+        openers: typing.Dict[str, typing.Tuple[str, str, list]] = None
+) -> typing.BinaryIO:
+    """Automagic file opener.
+
+    :param filename: A path to a file (presumably a FASTQ file),
+      compressed or not.
+    :param openers: A mapping between extension names and
+      openers defined as triplets (module name, class/function
+      in the module, and tuple with unnamed parameters for the class/function).
+      If `None` the module-level object `FORMAT_OPENERS` is used.
+      See details below.
+    :returns: A stream object returned by the opener found to
+      match `filename`.
+
+    The automagic opener will guess the file type from this
+    extension. For example, a filename `'foo/bar.fq.gz'` will be
+    guess to be a gzip-compressed (FASTQ) file. `'foo/bar.fq'`
+    an uncompressed file. `'foo/bar.bar.bz2'` a bz2-compressed
+    file.
+
+    Extension names for compression schemes present in Python's
+    standard lib should be understood by default (gzip, lzma, bz2)
+    but it is easy to add additional compression schemes.
+    """
     maybe_ext = filename.rsplit(os.path.extsep, maxsplit=1)
     if len(maybe_ext) == 1:
         # No extension

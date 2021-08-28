@@ -46,8 +46,8 @@ For example, parsing FASTQ data in a gzip-compressed file works the same way:
            # do something
 	   pass
 
-
-Writing an extension automagic reader name-based reader: 
+This allowed to implement very simply an automagic file open that uses file extensions
+to guess the file format: 
 
 .. code-block:: python
 
@@ -63,8 +63,10 @@ Writing an extension automagic reader name-based reader:
                # do something
 	       pass
 
+Extension names for other compression schemes can be added. The documentation for
+the function is:
 
-.. autofunction:: fastqandfurious.fastqandfurious.readfastq_iter
+.. autofunction:: fastqandfurious.fastqandfurious.automagic_open
 
 
 Faster with C
@@ -91,6 +93,16 @@ the code and second with the C-extension:
            for sequence in it:
                # do something
 	       pass
+
+.. note::
+
+   The function :func:`fastqandfurious.fastqandfurious.readfastq_iter` is
+   the workhorse. It is implemented in Python, but we can achieve speeds about identical to
+   the fastest parsers by using buffering and parsing
+   functions able to work with slices of FASTQ files (the buffers). However we keep a lot
+   flexibility with this approach, unlike a monolithic C-extensions found elsewhere. 
+   
+   .. autofunction:: fastqandfurious.fastqandfurious.readfastq_iter
 
 
 Use with other libraries
