@@ -9,6 +9,6 @@ Project web page: [https://lgautier.github.io/fastq-and-furious/](https://lgauti
 [![Python package](https://github.com/lgautier/fastq-and-furious/actions/workflows/pythonpackage.yml/badge.svg)](https://github.com/lgautier/fastq-and-furious/actions/workflows/pythonpackage.yml)
 [![Pypi release](https://img.shields.io/pypi/v/fastq-and-furious.svg)](https://img.shields.io/pypi/v/fastq-and-furious.svg)
 
-Efficient handling of FASTQ files(*) from Python ( *: no multi-line FASTQ though, in which case an exception will be raised when parsing).
+Efficient and flexible parsing of FASTQ files(*) from Python. It is about as fast as the fastest parser with C extensions, but it is substantially more flexible.
 
 <img src="throughput.svg">
