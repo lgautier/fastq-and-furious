@@ -190,7 +190,7 @@ object and an array of positions)</p></li>
 </dl>
 <p>Entries in the FASTQ files are parsed from chunks of size <cite>fbufsize</cite>),
 using the function passed in parameter <cite>entrypos</cite>. A
-faster alternative to the default implementated in C is in
+faster alternative to the default is implemented in C:
 <cite>fastqandfurious._fastqandfurious.entrypos</cite>.</p>
 <p>With the current implementation, <cite>fbufsize</cite> must be large enough to contain
 the largest entry in the file. For example, if the longest read is 250bp
