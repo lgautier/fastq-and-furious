@@ -144,7 +144,7 @@ def readfastq_iter(
 
     Entries in the FASTQ files are parsed from chunks of size `fbufsize`),
     using the function passed in parameter `entrypos`. A
-    faster alternative to the default implementated in C is in
+    faster alternative to the default is implemented in C:
     `fastqandfurious._fastqandfurious.entrypos`.
 
     With the current implementation, `fbufsize` must be large enough to contain
