@@ -210,7 +210,9 @@ def readfastq_iter(
             offset = 0
 
 
-FORMAT_OPENERS: typing.Dict[str, typing.Tuple[str, str, list]] = {
+FORMAT_OPENERS: typing.Dict[
+    str,
+    typing.Tuple[typing.Union[str, object], str, list]] = {
     'gz': ('gzip', 'open', list()),
     'gzip': ('gzip', 'open', list()),
     'bz2': ('bz2', 'open', list()),
@@ -227,7 +229,8 @@ def automagic_open(
     :param filename: A path to a file (presumably a FASTQ file),
       compressed or not.
     :param openers: A mapping between extension names and
-      openers defined as triplets (module name, class/function
+      openers defined as triplets (module name or a namespace,
+      class/function
       in the module, and tuple with unnamed parameters for the class/function).
       If `None` the module-level object `FORMAT_OPENERS` is used.
       See details below.
@@ -254,6 +257,9 @@ def automagic_open(
         modulename, funcname, args = FORMAT_OPENERS[ext]
     except KeyError:
         modulename, funcname, args = ('io', 'open', ('rb', ))
-    module = importlib.importmodule(modulename)
+    if isinstance(modulename, str): 
+        module = importlib.importmodule(modulename)
+    else:
+        module = modulename
     opener = getattr(module, funcname)
     return opener(filename, *args)
