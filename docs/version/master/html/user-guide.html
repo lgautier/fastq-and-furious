@@ -113,7 +113,8 @@ the function is:</p>
 <li><p><strong>filename</strong> – A path to a file (presumably a FASTQ file),
 compressed or not.</p></li>
 <li><p><strong>openers</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]]]) – A mapping between extension names and
-openers defined as triplets (module name, class/function
+openers defined as triplets (module name or a namespace,
+class/function
 in the module, and tuple with unnamed parameters for the class/function).
 If <cite>None</cite> the module-level object <cite>FORMAT_OPENERS</cite> is used.
 See details below.</p></li>
