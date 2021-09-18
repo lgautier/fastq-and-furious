@@ -1,5 +1,7 @@
 import pytest
 from array import array
+import enum
+import textwrap
 from fastqandfurious import fastqandfurious, _fastqandfurious
 from Bio import SeqIO
 
@@ -9,7 +11,16 @@ QUALITY = '3425@!#!'
 MLINE_SEQUENCE = 'AATTGCCG\nGCCGTA'
 MLINE_QUALITY = '3425@!#!\n255212'
 
-ENTRIES_TPL = """
+class ENTRIES_FQ_TPL(enum.Enum):
+
+    FINAL = """
+@{header}
+{sequence}
++
+{quality}
+"""
+
+    QUALHEAD = """
 @{header}
 {sequence}
 +
@@ -17,29 +28,37 @@ ENTRIES_TPL = """
 @bar{header}
 """
 
-ENTRIES_FINAL_TPL = """
+    NOQUAL = """
 @{header}
 {sequence}
 +
-{quality}
 """
 
-ENTRIES_QUALHEAD_TPL = """
-@{header}
-{sequence}
-+
-{quality}
-@bar{header}
-"""
+class ENTRIES_FA_TPL(enum.Enum):
+
+    NOTFINAL = textwrap.dedent("""
+    >{header}
+    {sequence}
+    >{header}_2
+    {sequence}
+    """)
+
+    FINAL = textwrap.dedent("""
+    >{header}
+    {sequence}
+    """)
+
+    NOSEQ = textwrap.dedent("""
+    >{header}
+    """)
 
 
 @pytest.mark.parametrize('func',
                          (fastqandfurious.entrypos,
                           _fastqandfurious.entrypos))
 @pytest.mark.parametrize('entries_tpl,status',
-                         ((ENTRIES_TPL, fastqandfurious.COMPLETE),
-                          (ENTRIES_FINAL_TPL, fastqandfurious.MISSING_QUAL_END),
-                          (ENTRIES_QUALHEAD_TPL, fastqandfurious.COMPLETE)))
+                         ((ENTRIES_FQ_TPL.FINAL.value, fastqandfurious.MISSING_QUAL_END),
+                          (ENTRIES_FQ_TPL.QUALHEAD.value, fastqandfurious.COMPLETE)))
 @pytest.mark.parametrize('test_sequence,test_quality',
                          ((SEQUENCE, QUALITY), (MLINE_SEQUENCE, MLINE_QUALITY)))
 def test_parseentry(func, entries_tpl, status, test_sequence, test_quality):
@@ -59,13 +78,71 @@ def test_parseentry(func, entries_tpl, status, test_sequence, test_quality):
     assert header == HEADER.encode('ascii')
     assert sequence == test_sequence.encode('ascii')
     assert quality == test_quality.encode('ascii')
-    
 
+
+@pytest.mark.parametrize('func',
+                         (fastqandfurious.entrypos_fasta,))
+@pytest.mark.parametrize(
+    'entries_tpl,status,test_sequence',
+    ((ENTRIES_FA_TPL.NOTFINAL.value, fastqandfurious.COMPLETE, SEQUENCE),
+     (ENTRIES_FA_TPL.NOTFINAL.value, fastqandfurious.COMPLETE, MLINE_SEQUENCE),
+     (ENTRIES_FA_TPL.FINAL.value, fastqandfurious.MISSING_SEQ_END, SEQUENCE),
+     (ENTRIES_FA_TPL.FINAL.value, fastqandfurious.MISSING_SEQ_END, MLINE_SEQUENCE),
+     (ENTRIES_FA_TPL.NOSEQ.value, fastqandfurious.MISSING_SEQ_BEG, ''),
+    )
+)
+def test_parseentry(func, entries_tpl, status, test_sequence):
+    entries = entries_tpl.format(header=HEADER,
+                                 sequence=test_sequence).encode('ascii')
+    posbuffer = array('q', [-1, ] * 6)
+    offset = 0
+    globaloffset = 0
+    res_status = func(entries, offset, posbuffer)
+    assert res_status == status
+    (header,
+     sequence) = fastqandfurious.entryfunc_fasta(entries,
+                                                 posbuffer,
+                                                 globaloffset)
+    assert header == HEADER.encode('ascii')
+    assert sequence == test_sequence.encode('ascii')
+
+
+@pytest.mark.parametrize(
+    'func',
+    (fastqandfurious.entrypos, 
+     pytest.param(
+         _fastqandfurious.entrypos,
+         marks=pytest.mark.xfail(reason='C parser not consistent with Python parser')))
+)
+@pytest.mark.parametrize('status,test_sequence',
+                         ((fastqandfurious.MISSING_QUAL_BEGIN, SEQUENCE),
+                          (fastqandfurious.MISSING_QUAL_BEGIN, MLINE_SEQUENCE)))
+def test_parseentry_missqual(func, status, test_sequence):
+    entries_tpl = ENTRIES_FQ_TPL.NOQUAL.value
+    test_quality = ''
+    entries = entries_tpl.format(header=HEADER,
+                                 sequence=test_sequence,
+                                 quality=test_quality).encode('ascii')
+    posbuffer = array('q', [-1, ] * 6)
+    offset = 0
+    globaloffset = 0
+    res_status = func(entries, offset, posbuffer)
+    assert res_status == status
+    (header,
+     sequence,
+     quality) = fastqandfurious.entryfunc(entries,
+                                          posbuffer,
+                                          globaloffset)
+    assert header == HEADER.encode('ascii')
+    assert sequence == test_sequence.encode('ascii')
+    assert quality == test_quality.encode('ascii')
+
+    
 @pytest.mark.parametrize('func',
                          (fastqandfurious.entrypos,
                           _fastqandfurious.entrypos))
 @pytest.mark.parametrize('entries_tpl',
-                         (ENTRIES_TPL, ENTRIES_FINAL_TPL, ENTRIES_QUALHEAD_TPL))
+                         (ENTRIES_FQ_TPL.FINAL.value, ENTRIES_FQ_TPL.QUALHEAD.value))
 @pytest.mark.parametrize(
     'func_bufsize,status',
     ((lambda l_header, l_sequence, l_quality: l_header - 2,

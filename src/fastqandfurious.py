@@ -5,8 +5,12 @@ import os
 import typing
 
 CHAR_AT: int = ord(b'@')
+CHAR_GT: int = ord(b'>')
 CHAR_PLUS: int = ord(b'+')
 CHAR_NEWLINE: int = ord(b'\n')
+BYTES_NEWLINE_AT: bytes = bytes([CHAR_NEWLINE, CHAR_AT])
+BYTES_NEWLINE_PLUS: bytes = bytes([CHAR_NEWLINE, CHAR_PLUS])
+BYTES_NEWLINE_GT: bytes = bytes([CHAR_NEWLINE, CHAR_GT])
 ARRAY_INIT: int = array('q', [-1, ] * 6)
 
 Entry = namedtuple('Entry', 'header sequence quality')
@@ -32,15 +36,24 @@ def read(fh: typing.BinaryIO, fbufsize: int) -> typing.Tuple[bytes, bool]:
     return (blob, eof)
 
 
-def entrypos(buf: bytes, offset: int, posbuffer: int) -> int:
+def entrypos(buf: bytes, offset: int, posbuffer: typing.Tuple[int]) -> int:
+    """Find the position of the next FASTQ entry in a buffer.
+
+    :param buf: Buffer with FASTQ data
+    :param offset: Offset to start at in the buffer.
+    :param posbuffer: A sequence acting as a buffer of positions for an entry.
+    This is filled as entry elements (header, sequence, quality string) are
+    identified in `buf`.
+    :return: A return code about whether the entry was found.
+    """
 
     # Find header of FASTQ entry.
-    headerbeg_i: int = buf.find(b'\n@', offset)
+    headerbeg_i: int = buf.find(BYTES_NEWLINE_AT, offset)
     if headerbeg_i == -1:
         return MISSING_SEQHEADER_BEGIN
     else:
         posbuffer[MISSING_SEQHEADER_BEGIN] = headerbeg_i+1
-    headerend_i: int = buf.find(b'\n', headerbeg_i+2)
+    headerend_i: int = buf.find(CHAR_NEWLINE, headerbeg_i+2)
     if headerend_i == -1:
         return MISSING_SEQHEADER_END
     else:
@@ -50,14 +63,14 @@ def entrypos(buf: bytes, offset: int, posbuffer: int) -> int:
     if headerend_i+1 >= len(buf):
         return MISSING_SEQ_BEG
     posbuffer[MISSING_SEQ_BEG] = headerend_i+1
-    seqend_i: int = buf.find(b'\n+', headerend_i+1)
+    seqend_i: int = buf.find(BYTES_NEWLINE_PLUS, headerend_i+1)
     if seqend_i == -1:
         return MISSING_SEQ_END
     else:
         posbuffer[MISSING_SEQ_END] = seqend_i
 
     # Quality.
-    qualheadend_i: int = buf.find(b'\n', seqend_i+2)
+    qualheadend_i: int = buf.find(CHAR_NEWLINE, seqend_i+2)
     if qualheadend_i == -1:
         return MISSING_QUALHEADER_END
     elif ((qualheadend_i - seqend_i - 1) > 1
@@ -78,11 +91,55 @@ def entrypos(buf: bytes, offset: int, posbuffer: int) -> int:
     if not (
         (qualend_i-qualbeg_i != seqend_i+1 - headerend_i)
         or
-        (not qualend_i+2 >= len(buf) and buf[qualend_i:qualend_i+2] != b'\n@')
+        (not qualend_i+2 >= len(buf) and
+         buf[qualend_i:qualend_i+2] != BYTES_NEWLINE_AT)
         or
         (len(buf) - qualend_i)
     ):
         return INVALID
+    return COMPLETE
+
+
+def entrypos_fasta(buf: bytes, offset: int,
+                   posbuffer: typing.Tuple[int, ...]) -> int:
+    """Find the position of the next FASTA entry in a buffer.
+
+    :param buf: Buffer with FASTA data
+    :param offset: Offset to start at in the buffer.
+    :param posbuffer: A sequence acting as a buffer of positions for an entry.
+    This is filled as entry elements (header, sequence) are
+    identified in `buf`.
+    :return: A return code about whether the entry was found.
+    """
+
+    # Find header of FASTA entry.
+    headerbeg_i: int = buf.find(BYTES_NEWLINE_GT, offset)
+    if headerbeg_i == -1:
+        return MISSING_SEQHEADER_BEGIN
+    else:
+        posbuffer[MISSING_SEQHEADER_BEGIN] = headerbeg_i+1
+    headerend_i: int = buf.find(CHAR_NEWLINE, headerbeg_i+2)
+    if headerend_i == -1:
+        return MISSING_SEQHEADER_END
+    else:
+        posbuffer[MISSING_SEQHEADER_END] = headerend_i
+
+    # Sequence.
+    if headerend_i+1 >= len(buf):
+        return MISSING_SEQ_BEG
+    posbuffer[MISSING_SEQ_BEG] = headerend_i+1
+    seqend_i: int = buf.find(BYTES_NEWLINE_GT, headerend_i+1)
+    if seqend_i == -1:
+        # We return the end of the buffer but we can't be sure that
+        # that the sequence is complete.
+        if buf[-1] == CHAR_NEWLINE:
+            posbuffer[MISSING_SEQ_END] = len(buf)-1
+        else:
+            posbuffer[MISSING_SEQ_END] = len(buf)
+        return MISSING_SEQ_END
+    else:
+        posbuffer[MISSING_SEQ_END] = seqend_i
+
     return COMPLETE
 
 
@@ -112,6 +169,18 @@ def entryfunc(buf: bytes, pos: array, globaloffset: int) -> EntryType:
     sequence = buf[pos[2]:pos[3]]
     quality = buf[pos[4]:pos[5]]
     return (header, sequence, quality)
+
+
+def entryfunc_fasta(buf: bytes, pos: array, globaloffset: int) -> EntryType:
+    """
+    Build a FASTA entry as a tuple (header, sequence, quality)
+
+    - buf: bytes-like object
+    - pos: array of indices/positions in `buf`
+    """
+    header = buf[(pos[0]+1):pos[1]]
+    sequence = buf[pos[2]:pos[3]]
+    return (header, sequence)
 
 
 def entryfunc_abspos(buf: bytes, pos: array, globaloffset: int) -> int:
@@ -257,7 +326,7 @@ def automagic_open(
         modulename, funcname, args = FORMAT_OPENERS[ext]
     except KeyError:
         modulename, funcname, args = ('io', 'open', ('rb', ))
-    if isinstance(modulename, str): 
+    if isinstance(modulename, str):
         module = importlib.importmodule(modulename)
     else:
         module = modulename
