@@ -10,14 +10,16 @@ it can show how to use when compared to other parsers benchmarked.
 General idea
 ^^^^^^^^^^^^
 
-In a nutshell, the package provide function that takes as input any Python IO stream,
-such as one obtained by opening a file or any compressed file or network stream Python
-has an IO stream for, a buffersize, a callback function
-to build a entry from the elements in the stream parsed, and an optional callback
-function to find the positions of FASTQ entry elements. That function will return
+In a nutshell the package provides a function that accepts:
+
+- any Python IO stream as input. For example, one obtained by opening a regular file with :func:`open`
+  Or any compressed file or network stream Python has an IO stream for
+- a buffersize
+- a callback function to build a entry from elements positions in the stream
+- an optional callback function to find the positions of FASTQ entry elements. That function will return
 an iterator that will yield entries as `entryfunc` builds them.
 
-For example, with a simple uncompressed file and an `entryfunc` defined in the package:
+With a simple uncompressed file and an `entryfunc` defined in the package it looks like this:
 
 .. code-block:: python
 
@@ -27,11 +29,11 @@ For example, with a simple uncompressed file and an `entryfunc` defined in the p
    bufsize = 20000
    with open("a/fastq/file.fq", "rb") as fh:
        it = fqf.readfastq_iter(fh, bufsize, entryfunc)
-       for sequence in it:
-           # do something
+       for entry in it:
+           # Do something with the entry (sequencing read).
 	   pass
 
-The file's compression is decoupled from parsing, which allows us to have generic code.
+File compression is decoupled from parsing. This allows us to have generic code.
 For example, parsing FASTQ data in a gzip-compressed file works the same way:
 
 .. code-block:: python
@@ -43,7 +45,7 @@ For example, parsing FASTQ data in a gzip-compressed file works the same way:
    with gzip.open("a/fastq/file.fq", "rb") as fh:
        it = fqf.readfastq_iter(fh, bufsize, entryfunc)
        for entry in it:
-           # do something
+           # Do something with the entry (sequencing read).
 	   pass
 
 This allowed to implement very simply an automagic file open that uses file extensions
@@ -60,7 +62,7 @@ to guess the file format:
        with fqf.automagic_open(filename) as fh:
            it = fqf.readfastq_iter(fh, bufsize, entryfunc)
            for entry in it:
-               # do something
+               # Do something with the entry (sequencing read).
 	       pass
 
 Extension names for other compression schemes can be added. The documentation for
@@ -91,7 +93,7 @@ the code and second with the C-extension:
        with open("a/fastq/file.fq", "rb") as fh:
            it = fqf.readfastq_iter(fh, bufsize, entryfunc, entrypos=fqf.entrypos))
            for sequence in it:
-               # do something
+               # Do something with the entry (sequencing read).
 	       pass
 
 .. note::

@@ -55,25 +55,28 @@ The code for the benchmark (see below) is also a good source of information as
 it can show how to use when compared to other parsers benchmarked.</p>
 <section id="general-idea">
 <h2>General idea<a class="headerlink" href="#general-idea" title="Permalink to this headline">¶</a></h2>
-<p>In a nutshell, the package provide function that takes as input any Python IO stream,
-such as one obtained by opening a file or any compressed file or network stream Python
-has an IO stream for, a buffersize, a callback function
-to build a entry from the elements in the stream parsed, and an optional callback
-function to find the positions of FASTQ entry elements. That function will return
-an iterator that will yield entries as <cite>entryfunc</cite> builds them.</p>
-<p>For example, with a simple uncompressed file and an <cite>entryfunc</cite> defined in the package:</p>
+<p>In a nutshell the package provides a function that accepts:</p>
+<ul class="simple">
+<li><p>any Python IO stream as input. For example, one obtained by opening a regular file with <code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code>
+Or any compressed file or network stream Python has an IO stream for</p></li>
+<li><p>a buffersize</p></li>
+<li><p>a callback function to build a entry from elements positions in the stream</p></li>
+<li><p>an optional callback function to find the positions of FASTQ entry elements. That function will return</p></li>
+</ul>
+<p>an iterator that will yield entries as <cite>entryfunc</cite> builds them.</p>
+<p>With a simple uncompressed file and an <cite>entryfunc</cite> defined in the package it looks like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastqandfurious.fastqandfurious</span> <span class="k">as</span> <span class="nn">fqf</span>
 <span class="kn">from</span> <span class="nn">fastqandfurious.fastqandfurious</span> <span class="kn">import</span> <span class="n">entryfunc</span>
 
 <span class="n">bufsize</span> <span class="o">=</span> <span class="mi">20000</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
     <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">entryfunc</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
-        <span class="c1"># do something</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="c1"># Do something with the entry (sequencing read).</span>
         <span class="k">pass</span>
 </pre></div>
 </div>
-<p>The file’s compression is decoupled from parsing, which allows us to have generic code.
+<p>File compression is decoupled from parsing. This allows us to have generic code.
 For example, parsing FASTQ data in a gzip-compressed file works the same way:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gzip</span>
 <span class="kn">import</span> <span class="nn">fastqandfurious.fastqandfurious</span> <span class="k">as</span> <span class="nn">fqf</span>
@@ -82,7 +85,7 @@ For example, parsing FASTQ data in a gzip-compressed file works the same way:</p
 <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
     <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">entryfunc</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
-        <span class="c1"># do something</span>
+        <span class="c1"># Do something with the entry (sequencing read).</span>
         <span class="k">pass</span>
 </pre></div>
 </div>
@@ -97,7 +100,7 @@ to guess the file format:</p>
     <span class="k">with</span> <span class="n">fqf</span><span class="o">.</span><span class="n">automagic_open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">entryfunc</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
-            <span class="c1"># do something</span>
+            <span class="c1"># Do something with the entry (sequencing read).</span>
             <span class="k">pass</span>
 </pre></div>
 </div>
@@ -156,7 +159,7 @@ the code and second with the C-extension:</p>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">entryfunc</span><span class="p">,</span> <span class="n">entrypos</span><span class="o">=</span><span class="n">fqf</span><span class="o">.</span><span class="n">entrypos</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
-            <span class="c1"># do something</span>
+            <span class="c1"># Do something with the entry (sequencing read).</span>
             <span class="k">pass</span>
 </pre></div>
 </div>
@@ -419,7 +422,7 @@ as needed. For example, writing a filter on read length could be done with:</p>
     </div> 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, L. Gautier.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
 
   <style>
