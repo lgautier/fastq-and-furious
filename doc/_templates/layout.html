@@ -1,12 +1,15 @@
 {% extends "!layout.html" %}
-  {% block footer %} {{ super() }}
+{% block content %} {{ super() }}
+
+
+    {% block docs_navbar %}
+    <nav class="navbar navbar-custom navbar-expand-lg fixed-top bd-navbar" id="navbar-main">
+      {%- include "docs-navbar.html" %}
+    </nav>
+    {% endblock %}
 
   <style>
-    /* Sidebar header (and topbar for mobile) */
-    div.related, div.document {
-	background-color: #1f8dd6;
-	color: #ffffff;
-    }
+
     div.related a, div.document a {
 	color: #fabf9c;
     }
@@ -17,10 +20,6 @@
 	background-color: #ececec;
     }
 
-    div.body h1 {
-	border-top-color: #1f8dd6;
-    }
- 
     div.document div.body a {
 	color: #ff5e00;
     }
