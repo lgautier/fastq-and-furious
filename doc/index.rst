@@ -6,7 +6,8 @@
 fastq-and-furious
 =================
 
-Probably about as fast as FASTQ parsing in Python can be, but in a toolkit to build solutions.
+Probably about as fast as FASTQ parsing in Python can be. But flexible enough
+to help build very custom solutions.
 
 .. toctree::
    :maxdepth: 2
