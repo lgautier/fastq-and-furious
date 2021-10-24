@@ -173,8 +173,6 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install git+https://github.com/lgautier/fastq-and-furious.git
 </pre></div>
 </div>
-<p>The package contains an optional C-extension module. That C code is how the best performance can be obtained with CPython,
-but the Python-only version has the same API to allow the use of Pypy.</p>
 <section id="running-the-tests">
 <h2>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h2>
 <p>To run the tests after installation, one will need a clone of the repository. From the root of the repository, run:</p>
@@ -182,7 +180,7 @@ but the Python-only version has the same API to allow the use of Pypy.</p>
        --cov-report term tests.py
 </pre></div>
 </div>
-<p>If <code class="xref py py-mod docutils literal notranslate"><span class="pre">coverage</span></code> is not installed / is not working for you, the tests can be run without coverage analysis with:</p>
+<p>If <code class="xref py py-mod docutils literal notranslate"><span class="pre">coverage</span></code> is not installed or is not working for you, the tests can be run without coverage analysis with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pytest tests.py
 </pre></div>
 </div>

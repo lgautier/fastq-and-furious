@@ -10,16 +10,17 @@ it can show how to use when compared to other parsers benchmarked.
 General idea
 ^^^^^^^^^^^^
 
-In a nutshell the package provides a function that accepts:
+In a nutshell the package provides a function `readfastq_iter` that accepts:
 
-- any Python IO stream as input. For example, one obtained by opening a regular file with :func:`open`
-  Or any compressed file or network stream Python has an IO stream for
-- a buffersize
-- a callback function to build a entry from elements positions in the stream
-- an optional callback function to find the positions of FASTQ entry elements. That function will return
-an iterator that will yield entries as `entryfunc` builds them.
+- a Python IO stream of FASTQ data
+- a buffer size to parse the the IO stream
+- a callback function to build entries from elements positions in the stream
+- an optional callback function to find the positions of FASTQ elements
+  (header, sequence, quality). The default is a Python implementation,
+  but the package also has an alternative implementation in C for performance.
 
-With a simple uncompressed file and an `entryfunc` defined in the package it looks like this:
+With a simple uncompressed file and an `entryfunc` defined in the package
+it looks like this:
 
 .. code-block:: python
 
@@ -34,7 +35,8 @@ With a simple uncompressed file and an `entryfunc` defined in the package it loo
 	   pass
 
 File compression is decoupled from parsing. This allows us to have generic code.
-For example, parsing FASTQ data in a gzip-compressed file works the same way:
+For example, parsing FASTQ data in a gzip-compressed file does not require
+changes:
 
 .. code-block:: python
 
@@ -48,7 +50,7 @@ For example, parsing FASTQ data in a gzip-compressed file works the same way:
            # Do something with the entry (sequencing read).
 	   pass
 
-This allowed to implement very simply an automagic file open that uses file extensions
+The package even has an automagic file opener that uses file extensions
 to guess the file format: 
 
 .. code-block:: python
@@ -65,8 +67,10 @@ to guess the file format:
                # Do something with the entry (sequencing read).
 	       pass
 
-Extension names for other compression schemes can be added. The documentation for
-the function is:
+Any other compression scheme for which there is a Python IO opener can be
+added easily.
+
+The documentation for the function is:
 
 .. autofunction:: fastqandfurious.fastqandfurious.automagic_open
 
@@ -74,9 +78,9 @@ the function is:
 Faster with C
 ^^^^^^^^^^^^^
 
-The optional C-extension has the same API, but is faster. It is made optional
+The C-extension has the same API, but is faster. It is made optional
 to allow the use of :mod:`fastqandfurious` with Pypy or in other situations
-where building the C-extension in not possible.
+where building the C-extension is not possible.
 
 For example, reading the same FASTQ file, first without the C-extension speeding
 the code and second with the C-extension:
@@ -99,10 +103,10 @@ the code and second with the C-extension:
 .. note::
 
    The function :func:`fastqandfurious.fastqandfurious.readfastq_iter` is
-   the workhorse. It is implemented in Python, but we can achieve speeds about identical to
-   the fastest parsers by using buffering and parsing
-   functions able to work with slices of FASTQ files (the buffers). However we keep a lot
-   flexibility with this approach, unlike a monolithic C-extensions found elsewhere. 
+   implemented in Python. However, we can achieve with it performance results comparable to
+   the fastest FASTQ parser available in Python (:mod:`pyfastx`) by using buffering and parsing
+   functions able to work with slices of FASTQ files (the buffers). Our approach provides flexibility
+   while that other parser is a monolithic C-extension. 
    
    .. autofunction:: fastqandfurious.fastqandfurious.readfastq_iter
 
@@ -110,12 +114,11 @@ the code and second with the C-extension:
 Use with other libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-That design also lets us just drop the parser into an existing code base, or keep working
-with a library you are most familiar with, writing a short adapter (and observe
-immediate performance gains - see benchmark below).
+This parser can also be dropped into an existing code base, or be used
+with a library you are most familiar with. Only a short adapter code is needed.
 
-For example, to existing codebase using biopython's :class:`SeqRecord` one only needs
-to provide an `entryfunc` that builds entries accordingly:
+For example, to insert it into an existing codebase using biopython's :class:`SeqRecord`
+one only needs to provide an `entryfunc` that builds entries accordingly:
 
 .. code-block:: python
 
@@ -190,8 +193,8 @@ This is essentially like storing a table of positions:
 | 275      | 295      | 296     | 446     | 448         | 598         |
 +----------+----------+---------+---------+-------------+-------------+
 
-Whenever the FASTQ must be used again, that table can be used to quickly extract
-data elements without having to parse them. Where :mod:`fastqandfurious` shines
+Whenever the FASTQ must be used again, that table could be used to quickly extract
+data elements without having to parse the data again. Where :mod:`fastqandfurious` shines
 is that there is complete flexibility about how to store such indexes.
 
 That approach opens the door for implementing masking strategies to avoid
