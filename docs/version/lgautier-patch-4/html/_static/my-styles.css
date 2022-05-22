@@ -1,0 +1,15 @@
+:root {
+    --blue: #1f8dd6;
+    --orange: #fabf9c;
+    --red: #ff5e00;
+    --light: #ececec;
+    --pst-color-primary: var(--blue);
+    --pst-color-navbar-link: var(--light);
+    --pst-color-navbar-link-hover: var(--light);
+    --pst-color-navbar-link-active: var(--light);
+}
+
+.navbar-custom {
+    background-color: var(--orange);
+}
+
