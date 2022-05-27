@@ -8,8 +8,9 @@
 
     <title>Performance &#8212; fastq-and-furious 0.3.3 documentation</title>
     
-  <link href="_static/css/theme.css" rel="stylesheet">
-  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -19,15 +20,11 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
     href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
-    
-      
-
-    
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/css/blank.css" />
     <link rel="stylesheet" type="text/css" href="_static/my-styles.css" />
     
-  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -43,7 +40,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80"> 
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60"> 
     
     <div class="container-fluid" id="banner"></div>
 
@@ -112,7 +109,8 @@
           
             
             <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
@@ -120,6 +118,9 @@
     
   </div>
 </nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
             </div>
             
           
@@ -130,7 +131,7 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage pt-5 pb-3">
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
 
@@ -168,14 +169,14 @@
               <div>
                 
   <section id="performance">
-<h1>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h1>
+<h1>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">#</a></h1>
 <p>There is a little utility to try it out on your own systems and files (there are options,
 available with the flag <cite>–help</cite>).</p>
 <p>The two mode are “speed” and “compare”, the former benchmarking the speed of different
 parsers and the second comparing the output of different parsers (not so good to be
 fast if not correct).</p>
 <section id="speed">
-<h2>Speed<a class="headerlink" href="#speed" title="Permalink to this headline">¶</a></h2>
+<h2>Speed<a class="headerlink" href="#speed" title="Permalink to this headline">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m fastqandfurious.demo.benchmark speed &lt;FASTQ or FASTQ.gz or FASTQ.bz2 or FASTQ.lzma file&gt;
 </pre></div>
 </div>
@@ -235,7 +236,7 @@ For example, <cite>fastqandfurious</cite> can handle input from any Python <cite
 (e.g., LZO-compression), or to data not in files (e.g., network streams, pipes, or interprocess communications).</p>
 </section>
 <section id="compare">
-<h2>Compare<a class="headerlink" href="#compare" title="Permalink to this headline">¶</a></h2>
+<h2>Compare<a class="headerlink" href="#compare" title="Permalink to this headline">#</a></h2>
 <p>To compare the output of two parsers, for example <cite>biopython</cite> and our parser:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m fastqandfurious.demo.benchmark compare biopython fastqandfurious <span class="se">\</span>
   &lt;FASTQ <span class="p">|</span> FASTQ.gz <span class="p">|</span> FASTQ.bz2 <span class="p">|</span> FASTQ.lzma&gt;
@@ -249,7 +250,7 @@ For example, <cite>fastqandfurious</cite> can handle input from any Python <cite
               
               
               <!-- Previous / next buttons -->
-<div class='prev-next-area'> 
+<div class='prev-next-area'>
     <a class='left-prev' id="prev-link" href="user-guide.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
@@ -265,7 +266,8 @@ For example, <cite>fastqandfurious</cite> can handle input from any Python <cite
       </div>
     </div>
   
-  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 
 
 
@@ -357,7 +359,7 @@ For example, <cite>fastqandfurious</cite> can handle input from any Python <cite
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     

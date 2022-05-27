@@ -8,8 +8,9 @@
 
     <title>User guide &#8212; fastq-and-furious 0.3.3 documentation</title>
     
-  <link href="_static/css/theme.css" rel="stylesheet">
-  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -19,15 +20,11 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
     href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
-    
-      
-
-    
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/css/blank.css" />
     <link rel="stylesheet" type="text/css" href="_static/my-styles.css" />
     
-  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -44,7 +41,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80"> 
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60"> 
     
     <div class="container-fluid" id="banner"></div>
 
@@ -113,7 +110,8 @@
           
             
             <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
@@ -121,6 +119,9 @@
     
   </div>
 </nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
             </div>
             
           
@@ -131,7 +132,7 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage pt-5 pb-3">
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
 
@@ -179,13 +180,13 @@
               <div>
                 
   <section id="user-guide">
-<h1>User guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
+<h1>User guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">#</a></h1>
 <p>This documentation is work-in-progress. The docstring
 for <a class="reference internal" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="fastqandfurious.fastqandfurious.readfastq_iter"><code class="xref py py-func docutils literal notranslate"><span class="pre">fastqandfurious.fastqandfurious.readfastq_iter()</span></code></a> contains complementary information.
 The code for the benchmark (see below) is also a good source of information as
 it can show how to use when compared to other parsers benchmarked.</p>
 <section id="general-idea">
-<h2>General idea<a class="headerlink" href="#general-idea" title="Permalink to this headline">¶</a></h2>
+<h2>General idea<a class="headerlink" href="#general-idea" title="Permalink to this headline">#</a></h2>
 <p>In a nutshell the package provides a function <cite>readfastq_iter</cite> that accepts:</p>
 <ul class="simple">
 <li><p>a Python IO stream of FASTQ data</p></li>
@@ -242,7 +243,7 @@ added easily.</p>
 <p>The documentation for the function is:</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="fastqandfurious.fastqandfurious.automagic_open">
-<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">automagic_open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.automagic_open" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">automagic_open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.automagic_open" title="Permalink to this definition">#</a></dt>
 <dd><p>Automagic file opener.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -277,7 +278,7 @@ but it is easy to add additional compression schemes.</p>
 
 </section>
 <section id="faster-with-c">
-<h2>Faster with C<a class="headerlink" href="#faster-with-c" title="Permalink to this headline">¶</a></h2>
+<h2>Faster with C<a class="headerlink" href="#faster-with-c" title="Permalink to this headline">#</a></h2>
 <p>The C-extension has the same API, but is faster. It is made optional
 to allow the use of <code class="xref py py-mod docutils literal notranslate"><span class="pre">fastqandfurious</span></code> with Pypy or in other situations
 where building the C-extension is not possible.</p>
@@ -306,7 +307,7 @@ functions able to work with slices of FASTQ files (the buffers). Our approach pr
 while that other parser is a monolithic C-extension.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="fastqandfurious.fastqandfurious.readfastq_iter">
-<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">readfastq_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fh</span></em>, <em class="sig-param"><span class="pre">fbufsize</span></em>, <em class="sig-param"><span class="pre">entryfunc=&lt;function</span> <span class="pre">entryfunc&gt;</span></em>, <em class="sig-param"><span class="pre">entrypos=&lt;function</span> <span class="pre">entrypos&gt;</span></em>, <em class="sig-param"><span class="pre">globaloffset=0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">readfastq_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fbufsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entryfunc=&lt;function</span> <span class="pre">entryfunc&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypos=&lt;function</span> <span class="pre">entrypos&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">globaloffset=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="Permalink to this definition">#</a></dt>
 <dd><p>Iterate through entries in a FASTQ stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -354,7 +355,7 @@ very easily.</p>
 </div>
 </section>
 <section id="use-with-other-libraries">
-<h2>Use with other libraries<a class="headerlink" href="#use-with-other-libraries" title="Permalink to this headline">¶</a></h2>
+<h2>Use with other libraries<a class="headerlink" href="#use-with-other-libraries" title="Permalink to this headline">#</a></h2>
 <p>This parser can also be dropped into an existing code base, or be used
 with a library you are most familiar with. Only a short adapter code is needed.</p>
 <p>For example, to insert it into an existing codebase using biopython’s <code class="xref py py-class docutils literal notranslate"><span class="pre">SeqRecord</span></code>
@@ -389,7 +390,7 @@ one only needs to provide an <cite>entryfunc</cite> that builds entries accordin
 </div>
 </section>
 <section id="performance-by-design">
-<h2>Performance by design<a class="headerlink" href="#performance-by-design" title="Permalink to this headline">¶</a></h2>
+<h2>Performance by design<a class="headerlink" href="#performance-by-design" title="Permalink to this headline">#</a></h2>
 <p>The design is obviously also offering various performance gains by allowing to only build entry components
 as needed. Whenever entries in a FASTQ file are filtered out is significant number this can reduce
 the overhead of creating instances for each entry to delete them soon after.</p>
@@ -497,7 +498,7 @@ as needed. For example, writing a filter on read length could be done with:</p>
               
               
               <!-- Previous / next buttons -->
-<div class='prev-next-area'> 
+<div class='prev-next-area'>
     <a class='left-prev' id="prev-link" href="installation.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
@@ -520,7 +521,8 @@ as needed. For example, writing a filter on read length could be done with:</p>
       </div>
     </div>
   
-  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 
 
 
@@ -612,7 +614,7 @@ as needed. For example, writing a filter on read length could be done with:</p>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     
