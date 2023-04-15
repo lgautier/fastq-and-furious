@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", ]
+test = ["pytest", "coverage", "pytest-cov"]
 demo = ["ngs_plumbing", "screed", "biopython", "pyfastx"]
 
 [project.urls]
