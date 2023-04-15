@@ -45,7 +45,3 @@ packages = [
     "fastqandfurious.demo"
 ]
 # zip_safe = false # not supported as of setuptools==62.3.2
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-testpaths = ["rpy2/tests"]

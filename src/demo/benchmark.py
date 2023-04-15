@@ -7,6 +7,7 @@ REFRESH_RATE=int(1E5)
 logger = logging.getLogger('fastqandfurious_benchmark')
 logger.setLevel(logging.INFO)
 
+
 def benchmark_faf(fh, name='fastqandfurious', bufsize: int = int(2**16)):
     from fastqandfurious import fastqandfurious
     total_seq = int(0)
@@ -28,7 +29,7 @@ def benchmark_faf_c(fh, name='fastqandfurious w/ c-ext',
     from fastqandfurious import fastqandfurious, _fastqandfurious
     total_seq = int(0)
     t0 = time.time()
-    it = fastqandfurious.readfastq_iter(fh, bufsize, _entrypos=_fastqandfurious.entrypos)
+    it = fastqandfurious.readfastq_iter(fh, bufsize, entrypos=_fastqandfurious.entrypos)
     try:
         for i, e in enumerate(it):
             total_seq += len(e[1])
@@ -207,6 +208,9 @@ def _opener(filename):
     elif filename.endswith('.lzma'):
         import lzma
         return lzma.open
+    elif filename.endswith('.lz4'):
+        import lz4.frame
+        return lz4.frame.open
     else:
         return open
 
@@ -259,13 +263,7 @@ def run_speed(args):
         print('---')
         print(name)
         openfunc = _opener(args.filename)
-        if name in ('biopython', 'biopython_fastqiterator'):
-            with openfunc(args.filename, mode=mode) as fh:
-                try:
-                    func(fh)
-                except Exception as e:
-                    print('Error: %s' % str(e))
-        elif name == 'fastqandfurious (w/ C-ext and indexing)':
+        if name == 'fastqandfurious (w/ C-ext and indexing)':
             import tempfile
             from fastqandfurious import fastqandfurious, _fastqandfurious
             bufsize = args.faf_buffersize
@@ -274,7 +272,7 @@ def run_speed(args):
                     print('  building index...', end='', flush=True)
                     it = fastqandfurious.readfastq_iter(fh, bufsize,
                                                         entryfunc=fastqandfurious.entryfunc_abspos,
-                                                        _entrypos=_fastqandfurious.entrypos)
+                                                        entrypos=_fastqandfurious.entrypos)
                     for i, pos in enumerate(it):
                         pos.tofile(fh_index)
                     fh_index.flush()
@@ -286,12 +284,12 @@ def run_speed(args):
                     #except Exception as e:
                     #    print('Error: %s' % str(e))
         else:
-            with open(args.filename, mode, buffering = args.io_buffersize) as f:
-                with openfunc(f) as fh:
-                    try:
-                        func(fh)
-                    except Exception as e:
-                        print('Error: %s' % str(e))
+            with openfunc(args.filename, mode=mode) as fh:
+                try:
+                    func(fh)
+                except Exception as e:
+                    print('Error: %s' % str(e))
+
 
 def _screed_iter(fn):
     import screed
