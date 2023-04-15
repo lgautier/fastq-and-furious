@@ -5,17 +5,14 @@ on:
     branches-ignore:
       - 'gh-pages'
 
-env:
-  R-VERSION: "4.0"
-
 jobs:
   job_1:
     name: sphinx_html
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
       - name: Install Python dependencies
@@ -23,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install pandoc
           python -m pip install --upgrade pip
-          python setup.py install
+          pip install .
           pip install -r doc/requirements.txt
       - name: Build HTML doc
         run: |
@@ -31,7 +28,7 @@ jobs:
           make html
           git rev-parse --short HEAD > _build/html/.revforbuild
       - name: Archive documentation
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: html-doc
           path: doc/_build/html

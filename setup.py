@@ -3,23 +3,9 @@ from setuptools import setup, Extension
 import os
 import warnings
 
-PYPINAME = 'fastq-and-furious'
 PACKAGENAME = 'fastqandfurious'
-VERSION = '0.3.3'
 
 extra_compile_args = ['-Wall']
-
-CLASSIFIERS = [
-    'Intended Audience :: Science/Research',
-    'License :: OSI Approved :: MIT License',
-    'Operating System :: POSIX :: Linux',
-    'Programming Language :: C++',
-    'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Topic :: Scientific/Engineering',
-]
 
 if tuple(sys.version_info[:2]) < (3, 7):
     print('Error: Python >= 3.7 is *required*.')
@@ -44,23 +30,6 @@ faf_mod = Extension('%s._fastqandfurious' % PACKAGENAME,
                                         ['-O3', '-std=c99']))
 
 setup(
-    name = PYPINAME,
-    version = VERSION,
-    description = 'Fast handling of FASTQ files',
-    license = 'MIT',
-    author = 'Laurent Gautier',
-    author_email = 'lgautier@gmail.com',
-    url = 'https://lgautier.github.io/fastq-and-furious/',
-    packages = [PACKAGENAME,
-                #PACKAGENAME + '.tests',
-                PACKAGENAME + '.demo'],
-    package_dir = {PACKAGENAME: 'src'},
-    ext_modules = [faf_mod, ],
-    requires = ['setuptools'],
-    extras_require = {
-        'test' : ['pytest', ],
-        'demo' : ['ngs_plumbing', 'screed', 'biopython', 'pyfastx']},
-    classifiers = CLASSIFIERS)
-
-
-
+    package_dir = {PACKAGENAME: 'src'}, 
+    ext_modules = [faf_mod, ]
+)
