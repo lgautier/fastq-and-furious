@@ -14,7 +14,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.12"
       - name: Install Python dependencies
         run: |
           sudo apt-get update
@@ -28,7 +28,7 @@ jobs:
           make html
           git rev-parse --short HEAD > _build/html/.revforbuild
       - name: Archive documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: html-doc
           path: doc/_build/html
