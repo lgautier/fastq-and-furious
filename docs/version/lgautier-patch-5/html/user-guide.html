@@ -1,0 +1,778 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>User guide &#8212; fastq-and-furious 0.3.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/my-styles.css?v=f75b5b89" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=d5a15cff"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user-guide';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Performance" href="performance.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div> 
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">fastq-and-furious 0.3.3 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="performance.html">
+    Performance
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="performance.html">
+    Performance
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">User guide</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="user-guide">
+<h1>User guide<a class="headerlink" href="#user-guide" title="Link to this heading">#</a></h1>
+<p>This documentation is work-in-progress. The docstring
+for <a class="reference internal" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="fastqandfurious.fastqandfurious.readfastq_iter"><code class="xref py py-func docutils literal notranslate"><span class="pre">fastqandfurious.fastqandfurious.readfastq_iter()</span></code></a> contains complementary information.
+The code for the benchmark (see below) is also a good source of information as
+it can show how to use when compared to other parsers benchmarked.</p>
+<section id="general-idea">
+<h2>General idea<a class="headerlink" href="#general-idea" title="Link to this heading">#</a></h2>
+<p>In a nutshell the package provides a function <cite>readfastq_iter</cite> that accepts:</p>
+<ul class="simple">
+<li><p>a Python IO stream of FASTQ data</p></li>
+<li><p>a buffer size to parse the the IO stream</p></li>
+<li><p>a callback function to build entries from elements positions in the stream</p></li>
+<li><p>an optional callback function to find the positions of FASTQ elements
+(header, sequence, quality). The default is a Python implementation,
+but the package also has an alternative implementation in C for performance.</p></li>
+</ul>
+<p>With a simple uncompressed file and an <cite>entryfunc</cite> defined in the package
+it looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fqf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="kn">import</span> <span class="n">entryfunc</span>
+
+<span class="n">bufsize</span> <span class="o">=</span> <span class="mi">20000</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">entryfunc</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="c1"># Do something with the entry (sequencing read).</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>File compression is decoupled from parsing. This allows us to have generic code.
+For example, parsing FASTQ data in a gzip-compressed file does not require
+changes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fqf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="kn">import</span> <span class="n">entryfunc</span>
+
+<span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">entryfunc</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="c1"># Do something with the entry (sequencing read).</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>The package even has an automagic file opener that uses file extensions
+to guess the file format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fqf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="kn">import</span> <span class="n">entryfunc</span>
+
+<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;file_a.fq&#39;</span><span class="p">,</span> <span class="s1">&#39;file_b.fq.gz&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;file_c.fq.bz2&#39;</span><span class="p">,</span> <span class="s1">&#39;file_d.fq.lzma&#39;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">fqf</span><span class="o">.</span><span class="n">automagic_open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">entryfunc</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+            <span class="c1"># Do something with the entry (sequencing read).</span>
+            <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Any other compression scheme for which there is a Python IO opener can be
+added easily.</p>
+<p>The documentation for the function is:</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fastqandfurious.fastqandfurious.automagic_open">
+<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">automagic_open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.automagic_open" title="Link to this definition">#</a></dt>
+<dd><p>Automagic file opener.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – A path to a file (presumably a FASTQ file),
+compressed or not.</p></li>
+<li><p><strong>openers</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]]</span>) – A mapping between extension names and
+openers defined as triplets (module name or a namespace,
+class/function
+in the module, and tuple with unnamed parameters for the class/function).
+If <cite>None</cite> the module-level object <cite>FORMAT_OPENERS</cite> is used.
+See details below.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">BinaryIO</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A stream object returned by the opener found to
+match <cite>filename</cite>.</p>
+</dd>
+</dl>
+<p>The automagic opener will guess the file type from this
+extension. For example, a filename <cite>‘foo/bar.fq.gz’</cite> will be
+guess to be a gzip-compressed (FASTQ) file. <cite>‘foo/bar.fq’</cite>
+an uncompressed file. <cite>‘foo/bar.bar.bz2’</cite> a bz2-compressed
+file.</p>
+<p>Extension names for compression schemes present in Python’s
+standard lib should be understood by default (gzip, lzma, bz2)
+but it is easy to add additional compression schemes.</p>
+</dd></dl>
+
+</section>
+<section id="faster-with-c">
+<h2>Faster with C<a class="headerlink" href="#faster-with-c" title="Link to this heading">#</a></h2>
+<p>The C-extension has the same API, but is faster. It is made optional
+to allow the use of <code class="xref py py-mod docutils literal notranslate"><span class="pre">fastqandfurious</span></code> with Pypy or in other situations
+where building the C-extension is not possible.</p>
+<p>For example, reading the same FASTQ file, first without the C-extension speeding
+the code and second with the C-extension:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fqf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fastqandfurious._fastqandfurious</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fqf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="kn">import</span> <span class="n">entryfunc</span>
+
+<span class="n">bufsize</span> <span class="o">=</span> <span class="mi">20000</span>
+
+<span class="k">for</span> <span class="n">entrypos</span> <span class="ow">in</span> <span class="p">(</span><span class="n">fqf</span><span class="o">.</span><span class="n">entrypos</span><span class="p">,</span> <span class="n">_fqf</span><span class="o">.</span><span class="n">entrypos</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">entryfunc</span><span class="p">,</span> <span class="n">entrypos</span><span class="o">=</span><span class="n">fqf</span><span class="o">.</span><span class="n">entrypos</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+            <span class="c1"># Do something with the entry (sequencing read).</span>
+            <span class="k">pass</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The function <a class="reference internal" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="fastqandfurious.fastqandfurious.readfastq_iter"><code class="xref py py-func docutils literal notranslate"><span class="pre">fastqandfurious.fastqandfurious.readfastq_iter()</span></code></a> is
+implemented in Python. However, we can achieve with it performance results comparable to
+the fastest FASTQ parser available in Python (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pyfastx</span></code>) by using buffering and parsing
+functions able to work with slices of FASTQ files (the buffers). Our approach provides flexibility
+while that other parser is a monolithic C-extension.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fastqandfurious.fastqandfurious.readfastq_iter">
+<span class="sig-prename descclassname"><span class="pre">fastqandfurious.fastqandfurious.</span></span><span class="sig-name descname"><span class="pre">readfastq_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fbufsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entryfunc=&lt;function</span> <span class="pre">entryfunc&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypos=&lt;function</span> <span class="pre">entrypos&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">globaloffset=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fastqandfurious.fastqandfurious.readfastq_iter" title="Link to this definition">#</a></dt>
+<dd><p>Iterate through entries in a FASTQ stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fh</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">BinaryIO</span></code></span>) – file-like object or stream (just needs a method <cite>read</cite>)</p></li>
+<li><p><strong>fbufsize</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – buffer size (see note above)</p></li>
+<li><p><strong>entryfunc</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>]</span>) – a function to build an entry object (taking a bytes-like
+object and an array of positions)</p></li>
+<li><p><strong>entrypos</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – a function to find positions of entries</p></li>
+<li><p><strong>globaloffset</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An iterator over entries in the FASTQ file.</p>
+</dd>
+</dl>
+<p>Entries in the FASTQ files are parsed from chunks of size <cite>fbufsize</cite>),
+using the function passed in parameter <cite>entrypos</cite>. A
+faster alternative to the default is implemented in C:
+<cite>fastqandfurious._fastqandfurious.entrypos</cite>.</p>
+<p>With the current implementation, <cite>fbufsize</cite> must be large enough to contain
+the largest entry in the file. For example, if the longest read is 250bp
+long, and the identifier is 25-char long, the minimum buffer size will be
+about 525. Aiming for that minimum is not advised though, as some of the
+speed comes for minimizing data copying through the use of buffers. Larger
+buffers are able to contain many entries which will lead to better
+performances (with the cave at that very large
+buffer might be counter-productive if end-to-end entry-level interations is
+wanted. The iterator will need to read data
+to fill the buffer (or all data, whichever is the smallest) before starting
+to yield entries. A value between 20,000 and 50,000 (20KB-50KB) empircally
+gives pretty good results for short-read sequencing on this end. If the
+FASTQ file contains PacBio reads bumping this to 200,000 or more (200KB or
+more) is advised.</p>
+<p><cite>entryfunc</cite> can be any function taking a bytes-like objects and an
+array of position (array of signed integers of length 6:
+header (begin, end), sequence (begin, end), and quality (begin, end).
+This allows plugging this parser into existing code bases / frameworks
+very easily.</p>
+</dd></dl>
+
+</div>
+</section>
+<section id="use-with-other-libraries">
+<h2>Use with other libraries<a class="headerlink" href="#use-with-other-libraries" title="Link to this heading">#</a></h2>
+<p>This parser can also be dropped into an existing code base, or be used
+with a library you are most familiar with. Only a short adapter code is needed.</p>
+<p>For example, to insert it into an existing codebase using biopython’s <code class="xref py py-class docutils literal notranslate"><span class="pre">SeqRecord</span></code>
+one only needs to provide an <cite>entryfunc</cite> that builds entries accordingly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">fastqandfurious.fastqandfurious</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fqf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastqandfurious._fastqandfurious</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrayadd_b</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqRecord</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqRecord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">array</span><span class="w"> </span><span class="kn">import</span> <span class="n">array</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">biopython_entryfunc</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">posarray</span><span class="p">,</span> <span class="n">globaloffset</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">buf</span><span class="p">[</span><span class="n">posarray</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">posarray</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+    <span class="n">quality</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    <span class="n">quality</span><span class="o">.</span><span class="n">frombytes</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="n">posarray</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span><span class="n">posarray</span><span class="p">[</span><span class="mi">5</span><span class="p">]])</span>
+    <span class="n">arrayadd_b</span><span class="p">(</span><span class="n">quality</span><span class="p">,</span> <span class="o">-</span><span class="mi">33</span><span class="p">)</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">SeqRecord</span><span class="p">(</span>
+                <span class="n">seq</span><span class="o">=</span><span class="n">buf</span><span class="p">[</span><span class="n">posarray</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">posarray</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">),</span>
+                <span class="nb">id</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">letter_annotations</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;phred_quality&#39;</span><span class="p">:</span> <span class="n">quality</span><span class="p">}</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">entry</span>
+
+
+<span class="n">bufsize</span> <span class="o">=</span> <span class="mi">20000</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span>
+                            <span class="n">biopython_entryfunc</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="c1"># do something</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-by-design">
+<h2>Performance by design<a class="headerlink" href="#performance-by-design" title="Link to this heading">#</a></h2>
+<p>The design is obviously also offering various performance gains by allowing to only build entry components
+as needed. Whenever entries in a FASTQ file are filtered out is significant number this can reduce
+the overhead of creating instances for each entry to delete them soon after.</p>
+<p>For example, writing a filter on read length could be done with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LENGTH_THRESHOLD</span> <span class="o">=</span> <span class="mi">25</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">lengthfilter_entryfunc</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">posarray</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">posarray</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">posarray</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">LENGTH_THRESHOLD</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="p">[</span><span class="n">posarray</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">posarray</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">it</span> <span class="o">=</span> <span class="n">fqf</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span>
+                            <span class="n">lengthfilter_entryfunc</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sequence</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># do nothing</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># do something</span>
+            <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Fetching the positions for the elements of an entry (name/ID, sequence, quality) is also allowing us
+to store the positions associated with a FASTQ for future use (see the code for <cite>fastqandfurious_c_index</cite>
+in <cite>fastqandfurious.demo.benchmark</cite>).</p>
+<p>This is essentially like storing a table of positions:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>name_beg</p></th>
+<th class="head"><p>name_end</p></th>
+<th class="head"><p>seq_beg</p></th>
+<th class="head"><p>seq_end</p></th>
+<th class="head"><p>quality_beg</p></th>
+<th class="head"><p>quality_end</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>20</p></td>
+<td><p>22</p></td>
+<td><p>172</p></td>
+<td><p>24</p></td>
+<td><p>274</p></td>
+</tr>
+<tr class="row-odd"><td><p>275</p></td>
+<td><p>295</p></td>
+<td><p>296</p></td>
+<td><p>446</p></td>
+<td><p>448</p></td>
+<td><p>598</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Whenever the FASTQ must be used again, that table could be used to quickly extract
+data elements without having to parse the data again. Where <code class="xref py py-mod docutils literal notranslate"><span class="pre">fastqandfurious</span></code> shines
+is that there is complete flexibility about how to store such indexes.</p>
+<p>That approach opens the door for implementing masking strategies to avoid
+saving a FASTQ file after each filtering or read-trimming step. Excluding reads or trimming either end of the read
+could be done by only deleting rows or modifying the values in a table of indices. Assuming that int64 is required for the indices, each entry (read) takes 6x8=48 bytes uncompressed.
+In comparison each 120 base read (sequence + quality scores) takes
+over 250 bytes uncompressed.</p>
+<p>If having the quality as a sequence of integer ajusted for the eventual offset of 33, there is a also a C utility:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastqandfurious._fastqandfurious</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrayadd_b</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">array</span><span class="w"> </span><span class="kn">import</span> <span class="n">array</span>
+<span class="n">quality</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">quality</span><span class="o">.</span><span class="n">frombytes</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="n">posarray</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span><span class="n">posarray</span><span class="p">[</span><span class="mi">5</span><span class="p">]])</span>
+<span class="n">arrayadd_b</span><span class="p">(</span><span class="n">quality</span><span class="p">,</span> <span class="o">-</span><span class="mi">33</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The design is obviously also offering various performance gains by allowing to only build entry components
+as needed. For example, writing a filter on read length could be done with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">lengthfilter_entryfunc</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">posarray</span><span class="p">):</span>
+    <span class="n">LENGTH_THRESHOLD</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="k">if</span> <span class="n">posarray</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">posarray</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">LENGTH_THRESHOLD</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="p">[</span><span class="n">posarray</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">posarray</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;a/fastq/file.fq&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">it</span> <span class="o">=</span> <span class="n">fastqandfurious</span><span class="o">.</span><span class="n">readfastq_iter</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span>
+                                        <span class="n">lengthfilter_entryfunc</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sequence</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># do nothing</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># do something</span>
+            <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="performance.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Performance</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-idea">General idea</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastqandfurious.fastqandfurious.automagic_open"><code class="docutils literal notranslate"><span class="pre">automagic_open()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faster-with-c">Faster with C</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastqandfurious.fastqandfurious.readfastq_iter"><code class="docutils literal notranslate"><span class="pre">readfastq_iter()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-with-other-libraries">Use with other libraries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-by-design">Performance by design</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/user-guide.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+
+
+  <style>
+
+    div.related a, div.document a {
+	color: #fabf9c;
+    }
+
+    div.document div.body,
+    div.body h1, div.body h2, div.body h3,
+    div.body h4, div.body h5, div.body h6{
+	background-color: #ececec;
+    }
+
+    div.document div.body a {
+	color: #ff5e00;
+    }
+
+  </style>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2021, L. Gautier.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
