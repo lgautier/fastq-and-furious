@@ -275,7 +275,7 @@ def readfastq_iter(
             globaloffset += offset
             tmp_buf, eof = read(fh, fbufsize)
             buf = buf[offset:] + tmp_buf
-            del(tmp_buf)
+            del tmp_buf
             offset = 0
 
 
