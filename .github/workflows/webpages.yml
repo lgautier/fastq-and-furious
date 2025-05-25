@@ -9,12 +9,14 @@ jobs:
   job_1:
     name: sphinx_html
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.step_build_html.outputs.test }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.12"
       - name: Install Python dependencies
         run: |
           sudo apt-get update
@@ -23,12 +25,13 @@ jobs:
           pip install .
           pip install -r doc/requirements.txt
       - name: Build HTML doc
+        id: step_build_html
         run: |
           cd doc
           make html
-          git rev-parse --short HEAD > _build/html/.revforbuild
+          echo "revforbuild=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Archive documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: html-doc
           path: doc/_build/html
@@ -52,19 +55,20 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
       - name: Add HTML build
+        env:
+          REVFORBUILD: ${{needs.job1.outputs.output1}}
         run: |
           DOCPATH="docs/version/${GITHUB_REF##*/}/html"
           echo "Doc path: ${DOCPATH}"
           git rm -r --ignore-unmatch "${DOCPATH}"
           echo "Creating docpath."
           mkdir -p "${DOCPATH}"
-          mv html-doc/.revforbuild .
           mv -T html-doc "${DOCPATH}"
           echo "Adding docpath to local repos"
           git add "${DOCPATH}"
           if [ -z $(git status -uno --porcelain) ]; then
             echo "No changes to be committed."  
           else
-            git commit -m "HTML Sphinx build for $(cat .revforbuild)" "${DOCPATH}";
+            git commit -m "HTML Sphinx build for ${REVFORBUILD}" "${DOCPATH}";
             git push;
           fi
