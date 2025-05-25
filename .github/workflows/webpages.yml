@@ -63,7 +63,6 @@ jobs:
           git rm -r --ignore-unmatch "${DOCPATH}"
           echo "Creating docpath."
           mkdir -p "${DOCPATH}"
-          mv html-doc/.revforbuild .
           mv -T html-doc "${DOCPATH}"
           echo "Adding docpath to local repos"
           git add "${DOCPATH}"
