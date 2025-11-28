@@ -11,7 +11,7 @@ name = "fastq-and-furious"
 version = "0.3.4"
 description = "Performant handling of FASTQ files"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [{ name = "Laurent Gautier", email = "lgautier@gmail.com" }]
 classifiers = [
